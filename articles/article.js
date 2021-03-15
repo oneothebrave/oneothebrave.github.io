@@ -10,23 +10,23 @@
     intro: 文章概括
 */
 
-function createArticleItem(detailPage, title, about, date, intro, author) {
+function createArticleItem(title, about, date, intro, author, detail_url) {
     const article = `
         <article class="post">
             <header>
                 <div class="title">
-                    <h2><a href="./articles/${detailPage}?title=${title}&about=${about}&date=${date}&author=${author || "oneo"}&url=C1-note">${title}</a></h2>
+                    <h2><a href="./articles/detail.html?title=${title}&about=${about}&date=${date}&author=${author}&url=${detail_url}">${title}</a></h2>
                     <p>${about}</p>
                 </div>
                 <div class="meta">
                     <time class="published">${date}</time>
-                    <span class="author">${author || "oneo"}</span>
+                    <span class="author">${author}</span>
                 </div>
             </header>
             <p>${intro}</p>
             <footer>
                 <ul class="actions">
-                    <li><a href="./articles/${detailPage}?title=${title}&about=${about}&date=${date}&author=${author || "oneo"}" class="button large">Continue Reading</a></li>
+                    <li><a href="./articles/detail.html?title=${title}&about=${about}&date=${date}&author=${author}&url=${detail_url}" class="button large">Continue Reading</a></li>
                 </ul>
                 <ul class="stats">
                     <li><a href="#" class="icon solid fa-heart">28</a></li>
@@ -75,7 +75,7 @@ function createArticleDetail() {
             $("#detail_text").append(result)
         },
         error: function (result) {
-            debugger
+            console.dir(result)
         }
     });
 }
