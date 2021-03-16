@@ -4,10 +4,20 @@
 (function () {
     // 第一章
     const CHAPTER_ONE = createArticleItem(
-        "TTTTT",
-        "Lorem ipsum dolor amet nullam consequat etiam feugiat",
-        "Mar 15, 2021",
-        "Mauris neque quam, fermentum ut nisl vitae, convallis maximus nisl. Sed mattis nunc id lorem euismod placerat. Vivamus porttitor",
+        "【第1章】什么是JavaScript",
+        "JavaScript高级程序设计第四版笔记",
+        "Mar 16, 2021",
+        `
+        <div class="col-6 col-12-medium">
+            <h4>本章内容</h4>
+            <ul>
+                <li>JavaScript 历史回顾</li>
+                <li>JavaScript 是什么</li>
+                <li>JavaScript 与 ECMAScript 的关系</li>
+                <li>JavaScript 的不同版本</li>
+            </ul>
+        </div>
+        `,
         "oneo",
         "C1-note"
     );
@@ -15,11 +25,21 @@
 
     // 第二章
     const CHAPTER_TWO = createArticleItem(
-        "[fermentum]onvallis maximus nisl. Sed ma",
-        "JavaScriptattis nunc id lorem eui",
-        "Mar 15, 2021",
-        "auris neque quam, fermentum ut nisl vitae, convallis maximus nisl. Sed mattis nunc id lorem euismod placerat. Vivamus porttitor magn porttitor",
-        "Jane Doe",
+        "[第2章]HTML中的JavaScript",
+        "JavaScript高级程序设计第四版笔记",
+        "Mar 16, 2021",
+        `
+        <div class="col-6 col-12-medium">
+            <h4>本章内容</h4>
+            <ul>
+                <li>使用<\/script>元素</li>
+                <li>行内脚本与外部脚本的比较.</li>
+                <li>文档模式对 JavaScript 有什么影响.</li>
+                <li>确保 JavaScript 不可用时的用户体验.</li>
+            </ul>
+        </div>
+        `,
+        "oneo",
         "C2-note"
     );
     $("#main").prepend(CHAPTER_TWO);
