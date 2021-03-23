@@ -1,2 +1,252 @@
 <blockquote>ES5 定义的 ECMAScript，是目前为止实现得最为广泛（即受浏览器支持最好）的一个版本。ES6在浏览器中的实现（即受支持）程度次之。本章主要基于<b>ES6</b></blockquote>
 <h2>3.1 语法</h2>
+<h3>3.1.1 区分大小写</h3>
+<p>test和Test是两个不同的变量。typeof是关键字不能做变量，但是Typeof可以</p>
+<hr/>
+<h3>3.1.2 标记符</h3>
+<p>所谓标识符，就是变量、函数、属性或函数参数的名称。第一个字符必须是一个字母、下划线（_）或美元符号（$）。使用<b>驼峰大小写</b></p>
+<hr/>
+<h3>3.1.3 注释</h3>
+<p><pre><code>// 单行注释
+
+/*这是多行
+注释*/
+</code></pre></p>
+<hr/>
+<h3>3.1.4 严格模式</h3>
+<p>在脚本的开头加上 <b>"use strict";</b></p>
+<p>也可以仅仅在函数内部使用严格模式</p>
+<pre><code>function(){
+    "user strict";
+    // 函数体
+}</code></pre>
+<hr/>
+<h3>3.1.5 语句</h3>
+<p>语句以<b>;</b>结尾，加上分号有利于
+<ul>
+    <li>防止省略造成的问题，比如可以避免输入内容不完整</li>
+    <li>开发者通过删除空行来压缩代码</li>
+    <li>在某些情况下提升性能，因为解析器会尝试在合适的位置补上分号以纠正语法错误</li>
+</ul>
+if语句的大括号最好也不要省略，哪怕只有一行
+</p>
+<hr/>
+<hr/>
+<hr/>
+<h2>3.2 关键字和保留字</h2>
+<p><b>关键字</b>: 表示控制语句的开始和结束，或者执行特定的操作。ECMA-262 第 6 版规定的所有关键字如下：
+<pre>
+        break do in typeof 
+        case else instanceof var 
+        catch export new void 
+        class extends return while 
+        const finally super with 
+        continue for switch yield 
+        debugger function this 
+        default if throw 
+        delete import try</pre>
+<b>保留字</b>: 给将来做关键字用<pre>
+
+        始终保留: 
+        enum 
+        严格模式下保留: 
+        implements package public 
+        interface protected static 
+        let private 
+        模块代码中保留: 
+        await
+</pre>
+</p>
+<hr/>
+<hr/>
+<hr/>
+<h2>3.3 变量</h2>
+<p>ECMAScript 变量是松散类型的,可以用于保存任何类型的数据。每个变量只不过是一个用于保存任意值的命名占位符。使用var、const 和 let声明变量</p>
+<h3>3.3.1 var关键字</h3>
+<p>var声明的范围是<b>函数作用域</b></p>
+<p><code>var message;</code>定义了一个名为 message 的变量，可以用它保存任何类型的值。此时的值为特殊值undefined.</p>
+<p><code>var message = "hi";</code>message 被定义为一个保存字符串值 hi 的变量。像这样初始化变量不会将它标识为字符串类型，只是一个简单的赋值而已(typeof message的值为"string"，所以我不理解这句话的意思)
+<pre><code>var message = "hi"; 
+message = 100; // 合法，但不推荐</code></pre></p>
+<h4>1. var声明作用域</h4>
+<p>使用 var 操作符定义的变量会成为包含它的函数的局部变量。即：在函数内部声明，那作用域就在函数内部，一旦函数被调用结束，变量就会被销毁。<pre><code>function test() { 
+    var message = "hi"; // 局部变量
+} 
+test(); 
+console.log(message); // 出错！
+</code></pre> 在函数内部声明但是不带var关键字<b>(不推荐)</b> 以及在函数外部声明，会成为全局变量。<pre><code>function test() { 
+    message = "hi"; // 全局变量
+} 
+test(); 
+console.log(message); // "hi"
+</code></pre>定义多个变量，可以在一条语句中用逗号分隔每个变量<pre>var message = "hi", 
+    found = false, 
+    age = 29,
+    salary;</pre></p>
+<h4>2. var声明提升</h4>
+<p>下面的代码不会报错:
+    <pre><code>function foo() { 
+    console.log(age); 
+    var age = 26; 
+} 
+foo(); // undefined</code></pre>因为使用var声明的变量会自动提升到函数作用域顶部.ECMAScript 运行时把它看成等价于如下代码：
+    <pre><code>function foo() { 
+    var age; 
+    console.log(age); 
+    age = 26; 
+} 
+foo(); // undefined</code></pre>
+    这就是<b>“提升”（hoist）</b>也就是把所有变量声明都拉到函数作用域的顶部
+</p>
+<hr>
+<h3>3.3.2 let声明</h3>
+<p>let 声明的范围是<b>块作用域</b>
+<pre><code>if (true) { 
+    var name = 'Matt'; 
+    console.log(name); // Matt 
+} 
+console.log(name); // Matt
+if (true) { 
+    let age = 26; 
+    console.log(age); // 26 
+} 
+console.log(age); // ReferenceError: age 没有定义
+</code></pre>
+在这里，age 变量之所以不能在 if 块外部被引用，是因为它的作用域仅限于该块内部</p>
+<p>JavaScript 引擎会记录用于变量声明的标识符及其所在的块作用域</p>
+<pre><code>var name = 'Nicholas'; 
+console.log(name); // 'Nicholas' 
+if (true) { 
+    var name = 'Matt'; 
+    console.log(name); // 'Matt' 
+} 
+let age = 30; 
+console.log(age); // 30 
+if (true) { 
+    let age = 26; 
+    console.log(age); // 26 
+}</code></pre>
+<h4>1. 暂时性死区</h4>
+<p>let 声明的变量不会在作用域中被提升</p>
+<pre><code>// name 会被提升
+console.log(name); // undefined 
+var name = 'Matt'; 
+// age 不会被提升
+console.log(age); // ReferenceError：age 没有定义
+let age = 26;</code></pre>
+<h4>2. 全局声明</h4>
+<p>使用 let 在全局作用域中声明的变量不会成为 window 对象的属性（var 声明的变量则会）</p>
+<pre><code>var name = 'Matt'; 
+console.log(window.name); // 'Matt' 
+let age = 26; 
+console.log(window.age); // undefined</code></pre>
+<h4>3. 条件声明</h4>
+<p>如果不确定变量是否已经被声明过:</p>
+<pre><code><_script> 
+    let name = 'Nicholas'; 
+    let age = 36; 
+<_/script> 
+<_script> 
+    // 假设脚本不确定页面中是否已经声明了同名变量
+    // 那它可以假设还没有声明过
+    if (typeof name === 'undefined') { 
+        let name; 
+    } 
+    // name 被限制在 if {} 块的作用域内
+    // 因此这个赋值形同全局赋值
+    name = 'Matt'; 
+    try { 
+        console.log(age); // 如果 age 没有声明过，则会报错
+    } 
+    catch(error) { 
+        let age;
+    } 
+    // age 被限制在 catch {}块的作用域内
+    // 因此这个赋值形同全局赋值
+    age = 26; 
+<_/script></code></pre>
+<p>条件声明是反模式，不好，最好别用</p>
+<h4>4. for 循环中的 let 声明</h4>
+<p>在 let 出现之前，for 循环定义的迭代变量会渗透到循环体外部：</p>
+<pre><code>for (var i = 0; i < 5; ++i) { 
+// 循环逻辑
+} 
+console.log(i); // 5</code></pre>
+<p>因为var声明的范围是函数作用域，上述代码就相当于:</p>
+<pre><code>var i;
+for (i = 0; i < 5; ++i) { 
+    // 循环逻辑
+} 
+console.log(i); // 5
+</code></pre>
+<p>改成使用 let 之后，这个问题就消失了，因为迭代变量的作用域仅限于 for 循环块内部：</p>
+<pre><code>for (let i = 0; i < 5; ++i) { 
+    // 循环逻辑
+} 
+console.log(i); // ReferenceError: i 没有定义</code></pre>
+<p>在使用 var 的时候，最常见的问题就是对迭代变量的奇特声明和修改：</p>
+<pre><code>for (var i = 0; i < 5; ++i) { 
+    setTimeout(() => console.log(i), 0) 
+} 
+// 你可能以为会输出 0、1、2、3、4 
+// 实际上会输出 5、5、5、5、5</code></pre>
+<p>之所以会这样，是因为在退出循环时，迭代变量保存的是导致循环退出的值：5。因为setTimeout是个异步执行函数,它会先进入MacroTask Queen(宏任务队列),等待在栈中的<code>for (var i = 0; i < 5; ++i)</code>跑完5次。
+    由于i是使用var声明的，i的值由0变为1，由1变为2，最终为5，此时才轮到setTimeout函数执行，因此输出出来的自然都是5</p>
+<p>而在使用 let 声明迭代变量时，JavaScript 引擎在后台会<b>为每个迭代循环声明一个新的迭代变量</b>。每个 setTimeout 引用的都是<b>不同的变量实例</b></p>
+<pre><code>for (let i = 0; i < 5; ++i) { 
+    setTimeout(() => console.log(i), 0) 
+} 
+// 会输出 0、1、2、3、4</code></pre>
+<p>这种每次迭代声明一个独立变量实例的行为适用于所有风格的 for 循环，包括 for-in 和 for-of循环</p>
+<hr>
+<h3>3.3.3 const 声明</h3>
+<p>const 声明的范围是<b>块作用域</b>
+<p>const 的行为与 let 基本相同，唯一一个重要的区别是用它声明变量时必须同时初始化变量，且尝试修改 const 声明的变量会导致运行时错误(这也就说明了不能用 const 来声明迭代变量)</p>
+<pre><code>const age = 26; 
+age = 36; // TypeError: 给常量赋值
+// const 声明的作用域也是块
+const name = 'Matt'; 
+if (true) { 
+ const name = 'Nicholas'; 
+} 
+console.log(name); // Matt</code></pre>
+<p>const 声明的限制只适用于<b>它指向的变量的引用</b>。换句话说，如果 const 变量引用的是一个对象，那么修改这个对象内部的属性并不违反 const 的限制。</p>
+<pre><code>const person = {}; 
+person.name = 'Matt'; // ok</code></pre>
+<p>不过，如果你只想用 const 声明一个不会被修改的 for 循环变量，那也是可以的。也就是说，每次迭代只是<b>创建一个新变量</b>。这对 for-of 和 for-in 循环特别有意义：</p>
+<pre><code>for (const key in {a: 1, b: 2}) { 
+    console.log(key); 
+} 
+// a, b 
+for (const value of [1,2,3,4,5]) { 
+    console.log(value); 
+} 
+// 1, 2, 3, 4, 5</code></pre>
+<blockquote>其实不是很理解上述代码，先记着可以这么用吧。这里用let也行呀</blockquote>
+<hr>
+<h3>3.3.4 声明风格及最佳实践</h3>
+<ol>
+    <li>不使用 var</li>
+    <li>const 优先，let 次之</li>
+</ol>
+
+<hr>
+<hr>
+<hr>
+<h2>3.4 数据类型</h2>
+<p>ECMAScript 有 6 种简单数据类型：</p>
+<ul>
+    <li>Undefined</li>
+    <li>Null</li>
+    <li>Boolean</li>
+    <li>Number</li>
+    <li>String</li>
+    <li>Symboll（符号）是 ECMAScript 6 新增的</li>
+</ul>
+<p>一种复杂数据类型: </p>
+<ul>
+    <li>Object(对象:一种<b>无序键值对</b>的集合)</li>
+</ul>
+<h3>3.4.1 typeof 操作符</h3>
+
+
