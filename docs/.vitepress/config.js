@@ -1,3 +1,22 @@
+const JSNOTE_CHAPTERS = [
+    {
+        text: "简介",
+        link: "/JsNote/introduce" 
+    },
+    {
+        text: "一.什么是JavaScript",
+        link: "/JsNote/1" 
+    },
+    {
+        text: "二.HTML中的JavaScript",
+        link: "/JsNote/2" 
+    },
+    {
+        text: "三.语言基础",
+        link: "/JsNote/3" 
+    }
+];
+
 module.exports = {
     base: '/',
     title: 'Oneo\'s Blog',
@@ -12,24 +31,7 @@ module.exports = {
         sidebar: [
             { 
                 text: "JS笔记", 
-                children: [
-                    {
-                        text: "简介",
-                        link: "/JsNote/introduce" 
-                    },
-                    {
-                        text: "一.什么是JavaScript",
-                        link: "/JsNote/1" 
-                    },
-                    {
-                        text: "二.HTML中的JavaScript",
-                        link: "/JsNote/2" 
-                    },
-                    {
-                        text: "三.语言基础",
-                        link: "/JsNote/3" 
-                    }
-                ]
+                children: JSNOTE_CHAPTERS
             },
             { text: "ES6 Promised", link: "/devto-promised" }
         ]
