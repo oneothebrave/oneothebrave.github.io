@@ -1,9 +1,5 @@
 const JSNOTE_CHAPTERS = [
     {
-        text: "简介",
-        link: "/JsNote/introduce" 
-    },
-    {
         text: "一.什么是JavaScript",
         link: "/JsNote/1" 
     },
@@ -33,7 +29,19 @@ module.exports = {
                 text: "JS笔记", 
                 children: JSNOTE_CHAPTERS
             },
-            { text: "ES6 Promised", link: "/devto-promised" }
+            { 
+                text: "VitePress搭建博客并部署到GitHub Pages", 
+                children: [
+                    {
+                        text: "搭建",
+                        link: "/vitepress-blog-setup"
+                    },
+                    {
+                        text: "部署",
+                        link: "/vitepress-blog-depoly"
+                    }
+                ]
+            }
         ]
     }
 }
