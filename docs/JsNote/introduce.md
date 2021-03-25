@@ -1,4 +1,5 @@
-## 简介
+# 简介
+##
 
 这系列是[《JavaScript高级程序设计》第四版](https://www.ituring.com.cn/book/2472)的学习笔记
 
