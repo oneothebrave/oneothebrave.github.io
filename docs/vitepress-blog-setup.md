@@ -24,6 +24,8 @@ VitePress是[VuePress](https://www.vuepress.cn/)的兄弟，是由[Vite](https:/
 
    然后一直敲回车就行
 
+   
+
 3. 下载VitePress
 
    ```shell
@@ -81,8 +83,60 @@ VitePress是[VuePress](https://www.vuepress.cn/)的兄弟，是由[Vite](https:/
 
 ```js
 module.exports = {
-  title: 'Hello VitePress',
-  description: 'Just playing around.'
+  	base: '/',
+    title: 'Hello VitePress',
+  	description: 'Just playing around.',
+    lang: 'en-US',
+    themeConfig: {
+        lastUpdated: 'Last Update',
+        nav: [
+            { text: 'Home', link: '/' },
+            { text: 'GitHub', link:'https://github.com/<username>/<username>.github.io'},
+        ],
+        sidebar: [
+            { text: "第一篇文章", link: '/first' },
+            { 
+                text: "第二篇文章", 
+                children: [
+                    {
+                        text: "第二篇文章的子目录1",
+                        link: "/second-sub-2"
+                    },
+                    {
+                        text: "第二篇文章的子目录2",
+                        link: "/second-sub-2"
+                    }
+                ]
+            }
+        ]
+    }
 }
 ```
 
+这里列一些我用到了的配置选项，详细的配置列表看[这里](https://vitepress.vuejs.org/config/basics.html)和[这里](https://vitepress.vuejs.org/guide/global-computed.html)
+
+- **base**：根目录路径
+
+  ::: warning 注意
+
+  如果你要把站点部署到`https://<username>.github.io/`，则base设置为'/'即可
+
+  如果你要把站点部署到如`https://<username>.github.io/blog`，则需要把base设置为'/blog'。以此类推
+
+  :::
+
+- **title**：站点的标题。这将是所有页面标题的前缀。
+
+- **description**：审查元素，在`<header>`标签内的`<meta name="description" content="Just playing around.">`
+
+- **lang**：在打包编译之后渲染为`<html lang="en-US">`。不会在vitepress dev时被渲染
+
+- **themeConfig**：这个并不在官网的App Config中，而是在Global Computed里提到
+
+  - **lastUpdated**：显示声明之后会在页面的右下方自动标明最后一次更新页面的时间
+  - **nav**：右上方的导航栏
+  - **sidebar**：侧边栏。可以通过children属性配置子目录
+
+
+
+VitePress提供了自己的[Markdown扩展](https://vitepress.vuejs.org/guide/markdown.html)，再结合Markdown语法，就可编写自己的`.md`文件了
