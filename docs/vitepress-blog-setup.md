@@ -140,3 +140,6 @@ module.exports = {
 
 
 VitePress提供了自己的[Markdown扩展](https://vitepress.vuejs.org/guide/markdown.html)，再结合Markdown语法，就可编写自己的`.md`文件了
+
+> 推荐一个写`.md`文件的软件 [Typora](https://typora.io/)
+
