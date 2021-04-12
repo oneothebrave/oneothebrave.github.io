@@ -41,6 +41,16 @@ module.exports = {
                         link: "/vitepress-blog-depoly"
                     }
                 ]
+            },
+            {
+                text: "We live in a society",
+                children: [
+                    {
+                        text: "三胖",
+                        link: "/society--Kim-Jong-un"
+                    }
+                    
+                ]
             }
         ]
     }
