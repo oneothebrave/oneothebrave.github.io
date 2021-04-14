@@ -78,6 +78,21 @@ console.log(a) // Demacia
 
 所以为了引起想不到的麻烦，尽量用`module.exports`导出,`require`导入。
 
+最后一点，如果`module.exports`的值是个对象，不是基本类型，则`require`进来的名字要与导出时的名字相同,否则就会是`undefined`。
+
+```js
+////// unit.js
+module.exports = {
+    name: "oneo",
+    age: 24
+}
+
+////// test.js
+//要加{},如果导出单属性对象时不加{}，则require进来的是个对象。这个叫解构
+const {name, agee} = require("./unit.js") 
+console.log(name, agee) // oneo undefined
+```
+
 
 
 # export default , export / import

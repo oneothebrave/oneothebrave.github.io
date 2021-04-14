@@ -43,7 +43,7 @@ module.exports = {
                 ]
             },
             {
-                text: "[exports与module.exports],[export与export default],[import与require]",
+                text: "exports与module.exports,export与export default,import与require",
                 children: [
                     {
                         text: "总结",
