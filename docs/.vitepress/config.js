@@ -43,6 +43,16 @@ module.exports = {
                 ]
             },
             {
+                text: "[exports与module.exports],[export与export default],[import与require]",
+                children: [
+                    {
+                        text: "总结",
+                        link: "/export-import"
+                    }
+                    
+                ]
+            },
+            {
                 text: "We live in a society",
                 children: [
                     {
