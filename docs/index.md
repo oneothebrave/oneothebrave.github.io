@@ -22,6 +22,11 @@ title: 'Home'
 
 > 翻译一些觉得不错的文章
 
+1. [JS事件循环](/translation/devto-jseventloop.md)
+2. [JS中的Promises和async/await](/translation/devto-promises-async-await)
+
+
+
 
 
 - ### 这些可是我自己写的

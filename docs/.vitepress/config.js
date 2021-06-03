@@ -13,6 +13,17 @@ const JSNOTE_CHAPTERS = [
     }
 ];
 
+const TRANSLATION = [
+    {
+        text: "JavaScript中的事件循环",
+        link: "/translation/devto-jseventloop" 
+    },
+    {
+        text: "JS中的Promise,async和await",
+        link: "/JsNote/2" 
+    }
+];
+
 module.exports = {
     base: '/',
     title: 'Oneo\'s Blog',
@@ -43,7 +54,7 @@ module.exports = {
                 ]
             },
             {
-                text: "exports与module.exports,export与export default,import与require",
+                text: "[exports与module.exports],[export与export default],[import与require]",
                 children: [
                     {
                         text: "总结",
@@ -51,6 +62,10 @@ module.exports = {
                     }
                     
                 ]
+            },
+            {
+                text: "翻译而来",
+                children: TRANSLATION
             },
             {
                 text: "We live in a society",
