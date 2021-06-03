@@ -20,7 +20,7 @@ const TRANSLATION = [
     },
     {
         text: "JS中的Promise,async和await",
-        link: "/JsNote/2" 
+        link: "/translation/devto-promises-async-await" 
     }
 ];
 
