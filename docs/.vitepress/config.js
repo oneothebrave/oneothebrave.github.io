@@ -67,16 +67,16 @@ module.exports = {
                 text: "翻译而来",
                 children: TRANSLATION
             },
-            {
-                text: "We live in a society",
-                children: [
-                    {
-                        text: "三胖",
-                        link: "/society--Kim-Jong-un"
-                    }
+            // {
+            //     text: "We live in a society",
+            //     children: [
+            //         {
+            //             text: "三胖",
+            //             link: "/society--Kim-Jong-un"
+            //         }
                     
-                ]
-            }
+            //     ]
+            // }
         ]
     }
 }

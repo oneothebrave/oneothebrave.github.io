@@ -8,7 +8,7 @@ title: 'Home'
 - ### 《 JavaScript高级程序设计 》笔记系列
 
 
-> 这系列是[《JavaScript高级程序设计》第四版](https://www.ituring.com.cn/book/2472)的学习笔记，记录了一些我觉得要记录的东西，不会非常详细，也不会非常简略，就是怎么高兴怎么记
+> 这系列是[《JavaScript高级程序设计》第四版](https://www.ituring.com.cn/book/2472)的学习笔记，记录了一些我觉得要记录的东西，不会非常详细，也不会非常简略(边看边记实在太慢了，等找完工作再继续)
 >
 
 1. [[第1章] 什么是JavaScript](/JsNote/1)
