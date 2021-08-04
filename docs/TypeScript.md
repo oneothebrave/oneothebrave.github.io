@@ -33,13 +33,13 @@ tsc --init
 
 用来在根目录下生成一个 `tsconfig.json` 配置文件。
 
-![ts-1](images/ts-1.jpg)
+![ts-1](/images/ts-1.jpg)
 
 通过更改 `tsconfig.json` 文件中的 `rootDir`，可指定需要编译的 `.ts`文件存放的目录；
 
 通过更改 `tsconfig.json` 文件中的 `outDir`，可指定编译完成的 `.js`文件存放的目录；
 
-![ts-2](images/ts-2.jpg)
+![ts-2](/images/ts-2.jpg)
 
 配置好之后，直接在命令行输入
 
@@ -57,7 +57,7 @@ tsc -w
 
 若你在其他目录下也创建了一个 `.ts` 文件，并且不想编译它，你可以在 `.tsconfig.json` 加上一个 `include`属性来指定 **只编译某个目录下的文件** ：
 
-![ts-3](images/ts-3.jpg)
+![ts-3](/images/ts-3.jpg)
 
 # TypeScript 语法
 

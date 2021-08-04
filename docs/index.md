@@ -35,4 +35,5 @@ title: 'Home'
 
 1. [VitePress搭建博客并部署到GitHub Pages](/vitepress-blog-setup.md)
 2. [exports与module.exports,export与export default,import与require](/export-import.md)
+3. [TypeScript教程](/TypeScript.md)
 

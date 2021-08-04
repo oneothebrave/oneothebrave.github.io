@@ -1,1 +1,0 @@
-import{o as s,c as n,a}from"./app.ea498c01.js";const t='{"title":"搭建","description":"","frontmatter":{},"headers":[{"level":2,"title":"开始","slug":"开始"},{"level":2,"title":"配置","slug":"配置"}],"relativePath":"vitepress-blog-setup.md","lastUpdated":1616819144335}',e={},p=a('',16);e.render=function(a,t,e,o,c,r){return s(),n("div",null,[p])};export default e;export{t as __pageData};

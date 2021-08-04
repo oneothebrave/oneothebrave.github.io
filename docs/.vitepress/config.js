@@ -64,6 +64,16 @@ module.exports = {
                 ]
             },
             {
+                text: "TypeScript教程",
+                children: [
+                    {
+                        text: "总结",
+                        link: "/TypeScript"
+                    }
+                    
+                ]
+            },
+            {
                 text: "翻译而来",
                 children: TRANSLATION
             },
