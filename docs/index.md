@@ -1,7 +1,6 @@
 ---
 title: 'Home'
 ---
-<!-- # 感谢你看我的博客. -->
 
 # 目录
 
@@ -15,6 +14,17 @@ title: 'Home'
 
 2. [[第2章] HTML中的JavaScript](/JsNote/2)
 3. [[第3章] 语言基础](/JsNote/3)
+
+
+> 这是React笔记
+>
+
+1. [Fiber架构] (/React/Fiber)
+
+2. [笔记](/React/note)
+3. [问答](/React/questions)
+
+
 
 
 
@@ -36,4 +46,5 @@ title: 'Home'
 1. [VitePress搭建博客并部署到GitHub Pages](/vitepress-blog-setup.md)
 2. [exports与module.exports,export与export default,import与require](/export-import.md)
 3. [TypeScript教程](/TypeScript.md)
+
 
