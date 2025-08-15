@@ -1,4 +1,4 @@
-## setState是同步还是异步？
+# setState是同步还是异步？
 
 setState这个函数本身只是一个普通的调用执行的函数，肯定是同步的。
 
@@ -24,7 +24,7 @@ A：宏任务(setTimeout, setInterval)， 微任务(promise), 或直接在DOM元
 
 
 
-#### ✅但是，  **在react18之后，setState无论在什么情况下都是异步的！！**！
+✅但是，  **在react18之后，setState无论在什么情况下都是异步的！！**！
 
 
 
@@ -62,7 +62,7 @@ A：宏任务(setTimeout, setInterval)， 微任务(promise), 或直接在DOM元
 
 
 
-## useMemo和useCallback的区别
+# useMemo和useCallback的区别
 
 | 对比维度     | useMemo                                    | useCallback                                   |
 | ------------ | ------------------------------------------ | --------------------------------------------- |
@@ -85,7 +85,18 @@ A：宏任务(setTimeout, setInterval)， 微任务(promise), 或直接在DOM元
 
 
 
-## 什么是虚拟DOM，为什么使用虚拟DOM？
+# 什么是虚拟DOM，为什么使用虚拟DOM？
 
 React中的虚拟DOM是React内部用的JS对象树，用于描述UI状态。当首次渲染React组件时，就会创建一个虚拟DOM树，当组件的状态发生变化时，React会创建一个新的虚拟DOM树，然后将新的树与之前的树进行对比，用找到差异来更新实际DOM的部分。这样只修改真正变化的部分，提高性能，将多个更新批处理，还能减少重渲染的次数。缺点：在非常具体、高度优化的场景中，它的性能可能不如手动 DOM 操作
 
+
+
+
+
+解释 React 的单向数据流及其优势
+
+解释 React 应用程序的服务器端渲染及其优势？
+
+如何在 React 应用程序中处理异步数据加载？
+
+如何优化 React Context 的性能以减少重新渲染？
