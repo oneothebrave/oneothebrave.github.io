@@ -91,12 +91,193 @@ React中的虚拟DOM是React内部用的JS对象树，用于描述UI状态。当
 
 
 
+# 事件机制
+
+React 事件机制
+
+React的事件和普通的HTML事件有什么不同？
+
+React 组件中怎么做事件代理？它的原理是什么？
 
 
-解释 React 的单向数据流及其优势
 
-解释 React 应用程序的服务器端渲染及其优势？
+原生的HTML事件是将事件绑定在每个目标元素上，在捕获阶段从根节点开始往下捕获，直到目标元素，然后触发目标元素的事件，接着往上冒泡直到根元素。
 
-如何在 React 应用程序中处理异步数据加载？
+React的事件机制是通过合成事件和事件委托实现的。React采用事件委托机制，将事件绑定在根节点，当浏览器触发事件之后，react不会在目标元素或者其父元素上直接触发回调，而是先与原生事件类似，经过捕获冒泡，当事件冒泡到根节点，react会拦截这个原生事件，然后构建合成事件对象SynthnicEvent，这个对象封装了原生事件属性比如target，currentTarget等。由于React在构建Fiber树时，如果发现绑定了事件，就会把事件处理器存到Fiber节点上 ，于是当事件冒泡到根节点时，react根据fiber树从目标向上收集绑定的事件回调，接着按顺序手动执行捕获->目标->冒泡阶段的回调。所以React的事件流是“可控的模拟事件流”，而不是直接使用浏览器事件流。
 
-如何优化 React Context 的性能以减少重新渲染？
+
+
+# React如何获取组件对应的DOM元素？
+
+1. 通过使用useRef()  例如：
+
+```jsx
+import { useRef, useEffect } from "react"
+
+function MyComponent(){
+	const myRef = useRef(null);
+  
+  useEffect(() => {
+    myRef.current.focus();
+  }, []);
+  
+  return (
+  	<input ref={myRef} />
+  )
+}
+```
+
+2. 类组件的createRef()
+
+3. 通过使用useImperativeHandle自定义由ref暴露出来的句柄
+
+4. 回调Ref
+
+   ```jsx
+   function MyComponent() {
+     let inputEle = null;
+     
+     function setInputEle(ele) {
+       inputEle = ele;	
+     }
+     
+     useEffect(() => {
+       inputEle.focus();
+     }, []);
+     
+     return <input ref={setInputRef} />;
+     
+   }
+   ```
+
+​	
+
+> # **为什么回调ref可以绑定dom元素？**
+>
+> 譬如有这么一段：
+>
+> ```jsx
+> <input ref={(el) => console.log(el)}>
+> ```
+>
+> 传给ref的就是一个回调函数。在虚拟DOM(Fiber)上，这个函数会被传给FiberNode的ref属性：
+>
+> ```js
+> FiberNode {
+>   type: "input",
+>   stateNode: <真实DOM>, // commit 阶段创建
+>   ref: (el) => console.log(el)  // 你的回调函数
+> }
+> 
+> ```
+>
+> 在render阶段，Fiber会生成一棵新的Fiber树，但不会直接调用ref，只是在内存中准备好数据
+>
+> 回调ref不会在渲染阶段绑定DOM，而是等到commit阶段
+>
+> -------------------
+>
+> 在commit阶段，开始**挂载DOM**和**更新ref**
+>
+> 核心源码在 `react-reconciler/src/ReactFiberCommitWork.js`：
+>
+> （简化版）
+>
+> ```js
+> function commitAttachRef(finishedWork: Fiber) {
+>   const ref = finishedWork.ref;  
+>   if (ref !== null) {
+>     const instance = finishedWork.stateNode; // 真实DOM或class实例
+> 
+>     if (typeof ref === 'function') {
+>       ref(instance);  // ✅ 调用你的回调，传入真实DOM
+>     } else {
+>       ref.current = instance;
+>     }
+>   }
+> }
+> ```
+>
+> ps: `finishedWork` 在 **渲染完成但未提交**时，**指向 workInProgress 树的根节点**。提交完成后，才会被置为null
+>
+> 由上可以看到，当FiberNode的ref的类型是function时，也就是传给ref的是个回调ref时，会走ref(instance)，这个instance就是真实DOM.
+>
+> 因此，**回调 ref 可以绑定 DOM 的本质原因是**：
+>
+> ​			React 在 **commit 阶段**已经拿到了真实 DOM，然后**显式调用**你的回调函数，把 DOM 节点作为参数传给你。
+>
+> 下方的else分支就是当使用的是useRef时的情况，将DOM赋值给了ref.current
+>
+> ## 回调 ref 的优势是什么？
+>
+> 因为 **回调 ref 的调用是同步的**，你可以在 **ref 变化的瞬间**执行副作用(也就是回调函数里你自己写的东西)，而 `useRef` 不会。
+>
+> ps：在 commit 阶段：
+>
+> - React 会先调用 `logRef(null)` 卸载旧 DOM。
+> - 再调用 `logRef(newDom)` 绑定新 DOM。
+
+
+
+# 对React的插槽(Portals)的理解，如何使用，有哪些使用场景？ 
+
+React 提供了 `ReactDOM.createPortal(children, container, key?)` 方法，允许你**将某段 JSX 内容渲染到与当前组件 DOM 层级不同的位置**。
+ 返回值是一个 **React 元素**，在 React 的虚拟 DOM 树(Fiber)中仍然属于原来的父组件，但真实 DOM 会挂载到你指定的 `container` 节点中。**Portals 只改变真实 DOM 挂载点，不会改变 React 虚拟 DOM 树(Fiber)结构，事件冒泡仍然沿 React 树传播**（即走react的事件机制）。
+
+使用场景：
+
+1. 模拟对话框/弹窗
+
+		   2. 悬浮层组件，如Tooltip, Popover
+		   2.  跨react树渲染。在 React 应用和非 React 应用混合时，可能需要将 React 组件渲染到非 React 管理的 DOM 节点
+
+
+
+# 在 React 中如何避免不必要的 render？
+
+从开发者的角度来说：
+
+1. React.memo : 记忆化函数组件， props不变则跳过渲染
+2. useMemo / useCallaback : 缓存计算结果和函数引用， 避免子组件不必要更新
+3. 拆分组件： 缩小渲染范围
+4. 避免匿名函数和内敛对象： 防止每次生成新引用导致子组件渲染
+
+```jsx
+// ❌ 每次 render 生成新对象，导致子组件重新渲染
+<Child style={{ color: 'red' }} />
+
+// ✅ 提前定义
+const style = useMemo(() => ({ color: 'red' }), []);
+<Child style={style} />
+
+```
+
+
+
+从react内部优化的机制来说：
+
+React 在 Reconciliation 阶段会对比 **current Fiber 树**和**workInProgress Fiber 树**。
+
+如果某个节点 props/state/context 没有变化，React 会**直接复用之前的 Fiber**，跳过更新。
+
+
+
+# React中什么是受控组件和非控组件
+
+核心区别在于 **表单数据由谁管理**
+
+1. 受控组件  （需要实时校验或表单联动使用）
+
+​	表单元素的值由 React **状态（state）** 控制。
+
+- 表单的 **value** 始终等于 React 组件的 state。
+- 用户输入会触发 `onChange` → 更新 state → React 重新渲染 → 表单显示新值。
+- 数据源是 **React 的 state**，UI 和数据是单向绑定的。
+
+2. 非受控组件   （简单表单使用）
+
+​	表单元素的值**由 DOM 自己管理**，React 不直接控制它的值，而是通过 **ref** 读取
+
+- 表单的值不是通过 state 绑定的，而是直接存储在 DOM 元素内部。
+- 当需要拿到表单值时，通过 `ref` 获取。
+- React 只负责渲染，不负责存储和同步表单值。

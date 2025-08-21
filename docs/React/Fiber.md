@@ -148,3 +148,88 @@ Fiber中的alternate字段用于实现**双缓存机制**：
 **3. 构建过程：**在 WorkInProgress Tree 中应用所有更新，不影响当前显示。
 
 **4. 提交阶段：**交换 Current 和 WorkInProgress 的角色，新树成为 Current Tree。
+
+
+
+
+
+# 优先级顺序
+
+```js
+// 优先级示例
+const priorities = {
+  IMMEDIATE: 1,        // 用户输入事件
+  USER_BLOCKING: 2,    // 用户交互
+  NORMAL: 3,          // 网络请求结果
+  LOW: 4,             // 数据分析
+  IDLE: 5             // 空闲时间
+};
+```
+
+
+
+
+
+# 中断恢复
+
+```js
+// 简化的工作循环概念
+function workLoop() {
+  while (nextUnitOfWork && !shouldYield()) {
+    nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
+  }
+  // 关键：只有在shouldYield()返回true时才会停止
+  // shouldYield()会检查：
+  // 1. 时间是否用完
+  // 2. 是否有更高优先级的任务
+  // 3. 浏览器是否需要做其他事情
+}
+
+// shouldYield检查是否应该中断
+function shouldYield() {
+  return (
+    getCurrentTime() >= deadline ||           // 时间到了
+    hasHigherPriorityWork() ||               // 有更高优先级任务
+    needsToYieldToBrowser()                  // 浏览器需要响应
+  );
+}
+```
+
+中断过程：
+
+1. 浏览器需要绘制或用户有交互时，*shouldYield()* 返回true
+2. React保存当前的 *nextUnitOfWork*
+3. 将控制权交还给浏览器
+4. 浏览器处理其他任务（绘制，用户输入等）
+
+恢复过程：
+
+1. 浏览器空闲时，调度器重新开始工作
+2. 从保存的 *nextUnitOfWork* 继续执行
+3. 继续构建Fiber树直到完成或再次中断
+
+```js
+// Fiber节点保存了恢复所需的所有信息
+const workInProgressRoot = {
+  current: currentFiberTree,      // 当前显示的树
+  finishedWork: null,             // 完成的工作
+  nextUnitOfWork: interruptedFiber, // 被中断的位置
+  // ...
+};
+
+// 恢复时从这里继续
+function resumeWork() {
+  nextUnitOfWork = workInProgressRoot.nextUnitOfWork;
+  workLoop(); // 继续之前中断的工作
+}
+```
+
+中断渲染分几种情况，但不是每种情况引发的中断渲染都会导致相同的恢复渲染
+
+**时间片用完**：保存进度，从`nextUnitOfWork`继续
+
+**高优先级中断**：丢弃进度，从根节点重新开始
+
+**同等优先级**：通常合并处理，不中断渲染。但同样会舍弃进度，从根节点重新开始
+
+**低优先级**：不会中断当前渲染
