@@ -56,7 +56,7 @@ A：宏任务(setTimeout, setInterval)， 微任务(promise), 或直接在DOM元
 
 
 
-> 在 React 18 中，`setState` 在所有场景（包括原生事件、setTimeout、Promise 等）都是异步的，并且大多数情况下都支持自动批处理，只会在**跨多个宏任务时才拆分成多次渲染**。
+> 在 React 18 中，`setState` 在所有场景（包括原生事件、setTimeout、Promise 等）都是异步的，并且大多数情况下都支持自动批处理，只会在**跨多个宏任务时才拆分成多次渲染**。批处理不能跨宏任务，但可以跨微任务。
 
 
 
@@ -281,3 +281,222 @@ React 在 Reconciliation 阶段会对比 **current Fiber 树**和**workInProgres
 - 表单的值不是通过 state 绑定的，而是直接存储在 DOM 元素内部。
 - 当需要拿到表单值时，通过 `ref` 获取。
 - React 只负责渲染，不负责存储和同步表单值。
+
+
+
+
+
+# React setState 调用的原理
+
+对于函数组件useState的更新：
+
+- React把state存放在FiberNode.memoizedState(这是一个对象)中
+- 每次调用setState会创建一个hook update，放入FiberNode.memoizedState.queen(hook更新队列)中
+- 下一次render时，React会从hook更新队列中计算最新的state
+
+# React中的setState批量更新的原理
+
+### 什么是批量更新？
+
+当我们在 React 组件中多次调用setState， react不会立刻重新渲染，而是将多次更新收集到一个批次当中，然后在合适的时机合并更新并触发一次重渲染。
+
+### 核心原理：
+
+React在内部调用一个高阶函数 **batchedUpdates**, 并通过设置一个全局变量 **isBatchingUpdates=true** 来告诉react： “当前处于批处理模式，所有setState先别渲染，收集起来，等这轮事件处理完再统一更新”
+
+```js
+// React 17
+
+let isBatchingUpdates = false;
+
+export function batchedUpdates(fn, a, b) {
+  const prevIsBatchingUpdates = isBatchingUpdates;
+  isBatchingUpdates = true;
+  try {
+    return fn(a, b);
+  } finally {
+    isBatchingUpdates = prevIsBatchingUpdates;
+    if (!isBatchingUpdates) {
+      // 当前批处理结束，统一刷新
+      flushSyncCallbackQueue();
+    }
+  }
+}
+
+```
+
+### 流程：
+
+1. 触发合成事件 -> 调用 batchedUpdates -> isBatchingUpdates=true
+2. 每次的setState（譬如：setState(c => c+1)）都会创建一个update对象，大概长这样:
+
+```js
+{
+  action: c => c + 1, // 用户传入的更新函数
+  next: null          // 链表指针
+}
+
+```
+
+然后把 update对象 放入当前的FiberNode.memoizedState.queue的pending属性下
+
+3. 标记Fiber树上的优先级(lane)，多个setState的lane相同，就会被放在同一批次
+4. 进入渲染阶段，计算新的state
+5. 进入commit阶段，更新真实dom
+
+
+
+
+
+# React组件的state和props有什么区别?
+
+props:
+
+- 外部传入
+- 只读，不可修改
+- 用于父子通信和展示数据
+
+
+
+state：
+
+- 组件内部维护
+- 可变，通过setState更新
+- 用于保存组件的交互状态
+
+
+
+底层实现
+
+- props存在FiberNode.memoizedProps中 （`fiber.pendingProps`（更新中的 props）`fiber.memoizedProps`（上一次渲染完成的 props））
+- state存在FiberNode.memoizedState中
+
+
+
+
+
+# React中组件间通信的方式
+
+1. **父 -> 子**
+
+父组件通过 props 把数据传给子组件
+
+```jsx
+function Child({ name }) {
+  return <div>Child name: {name}</div>;
+}
+
+function Parent() {
+  return <Child name="Lunam" />;
+}
+```
+
+单向数据流， props只读
+
+
+
+2. **子 -> 父**
+
+通过回调函数。父组件把一个函数作为props传递给子组件，子组件调用该函数通知父组件
+
+```jsx
+function Child({ onClick }) {
+  return <button onClick={() => onClick('Hello from Child component')}>Click me</button>
+}
+
+function Parent() {
+  
+  function handleClick(msg) {
+    return console.log(msg);
+  }
+  
+  return <Child onClick={handleClick}/>
+}
+```
+
+
+
+3. 兄弟组件通信
+
+兄弟组件不能直接通信，一般通过 共同父组件 管理状态 或 全局状态Context
+
+方法A: 提升状态到父组件
+
+```jsx
+function SiblingA({ setMessage }) {
+  return <button onClick={() => setMessage('Hello from A')}>Send</button>
+}
+
+function SiblingB({ message }) {
+  return <div>Message: { message }</div>
+}
+
+function Parent() {
+  const [message, setMessage] = useState('');
+  
+  return (
+  	<>
+    	<SiblingA setMessage={setMessage} />
+      <SiblingB message={message} />
+    </>
+  )
+}
+```
+
+方法B: 使用Context
+
+适合跨多层组件共享数据：
+
+```jsx
+const MessageContext = createContext();
+
+function SiblingA() {
+  const { setMessage } = useContext(MessageContext);
+  
+  return (
+  	<button onClick={() => setMessage('Hi from A')}>Send</button>
+  )
+}
+
+function SiblingB() {
+  const { message } = useContext(MessageContext);
+  
+  return (
+  	<div>Message: { message }</div>
+  )
+}
+
+function Parent() {
+  const [message, setMessage] = useState('');
+  
+  return (
+  	<MessageContext value={{ message, setMessage }}>
+    	<SiblingA />
+      <SiblingB />
+    </MessageContext>
+  )
+}
+```
+
+
+
+4. 跨多层或全局状态管理
+
+​	Redux之类
+
+
+
+# 为什么hooks不能放在if/else语句中？
+
+因为react用 **单向链表** 严格保证hooks的顺序，如果放在条件语句中，可能会导致顺序错乱，导致当前hooks拿到的不是自己对应的hooks对象。
+
+ps：所有的hooks在fiber上是通过**单向链表**串联起来的，但是当调用setState时，react会把这个更新封装成一个update，当如queue中，这个**queue是一个环形链表**
+
+
+
+# 为什么 useState 返回的是数组而不是对象？
+
+因为赋值解构：
+
+- 返回数组，可以对数组中的变量命名，代码看起来比较干净
+- 返回对象，就必须和返回的值重名，就不能重复利用了

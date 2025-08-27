@@ -131,7 +131,7 @@ function render() {
 	const el2 = <Counter value={2} />;
 	```
 	虽然 `props.value` 不一样，但类型是同一个组件函数 `Counter`，因此React 会复用组件，只更新 props，不会重建组件或清除内部 state
-        
+     
     JS 层面就是这样比较的：
       ```
 	  if (prevElement.type === nextElement.type) {
@@ -270,9 +270,99 @@ arePropsEqual: 传一个函数，返回当前的props与新的props是否相同�
 
 
 
+## React.lazy
+
+核心点：`React.lazy` 把一个动态import() 包装成一个特殊的react组件，react内部用 Suspense+Fiber 控制它的加载与渲染
+
+```js
+// react/src/ReactLazy.js
+export function lazy<T extends ComponentType<any>>(
+  ctor: () => Promise<{ default: T }>
+): LazyComponent<T> {
+  return {
+    $$typeof: REACT_LAZY_TYPE, // 标记为 Lazy 组件
+    _ctor: ctor,              // 动态 import 函数
+    _status: -1,              // 记录状态
+    _result: null             // 存储结果
+  };
+}
+
+```
+
+可以看到返回一个 LazyComponent对象， $$typeof的类型是REACT_LAZY_TYPE
+
+### 渲染阶段发生了什么？
+
+React在渲染Fiber树时，会遇到这个lazy组件：
+
+- 如果 `_status` 的值还是-1(未加载):
+  1. 调用 `_ctor()` 即 import()
+  2. 得到一个 Promise
+  3. 抛出这个 Promise, 告诉React“我还没有准备好“
+- React捕获到这个Promise， 会去找**最近的Suspense边界** 	
+- Suspense会渲染 `fallback`，并订阅这个Promise
+- 当Promise resolve之后，React会重新调度Fiber，重新渲染Lazy组件
 
 
 
+所以React.lazy必须和Suspense一起使用，如果没有Suspense， React.lazy会直接报错，因为Promise没人捕获
+
+
+
+### 与 Fiber 的关系
+
+React.lazy 借助 **Fiber 的可中断渲染**实现了“加载中 → 回退 → 重新渲染”：
+
+1. **首次渲染**：
+   - Fiber 渲染到 Lazy 组件。
+   - 调用 `import()`，抛出 Promise。
+   - Fiber 中断当前渲染。
+2. **Suspense 渲染 fallback**：
+   - Fiber 继续渲染 `fallback`。
+3. **Promise resolve 后**：
+   - React 调度更新。
+   - Fiber 从 Lazy 组件处恢复渲染。
+   - 此时模块已加载 → 渲染真实组件。
+
+这就是为什么 `React.lazy` 可以无缝切换“加载中”与“加载完成”的状态
+
+
+
+### 总结：
+
+React.lazy 原理是什么？
+
+React.lazy 返回一个带 `REACT_LAZY_TYPE` 标记的对象，渲染时会调用动态 `import()`，如果还没加载完成会抛出 Promise，交给最近的 Suspense 处理。
+
+
+
+为什么 React.lazy 必须配合 Suspense 使用？
+
+因为 lazy 会在加载中抛出 Promise，需要 Suspense 捕获，否则渲染中断会直接报错。
+
+
+
+React.lazy 支持命名导出吗？
+
+不支持，必须是默认导出。因为 `React.lazy` 内部直接取 `module.default`。
+
+```js
+switch (lazyComponent._status) {
+  case Resolved:
+    return lazyComponent._result.default;
+  case Rejected:
+    throw lazyComponent._result;
+  default:
+    throw loadLazyComponent(lazyComponent);
+}
+
+```
+
+
+
+如果动态 import 失败会怎样？
+
+lazy 会把错误抛出来，交给最近的 ErrorBoundary 处理。
 
 
 
