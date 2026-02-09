@@ -27,7 +27,7 @@ const TRANSLATION = [
 module.exports = {
     base: '/',
     title: 'Oneo\'s Blog',
-    description: 'Oneo Sanchez\'s Tech Blog',
+    description: 'oneothebrave\'s Tech Blog',
     lang: 'en-US',
     themeConfig: {
         // lastUpdated: 'Last Update',
@@ -36,10 +36,10 @@ module.exports = {
             { text: 'GitHub', link: 'https://github.com/oneothebrave/oneothebrave.github.io' },
         ],
         sidebar: [
-            { 
-                text: "JS笔记", 
-                children: JSNOTE_CHAPTERS
-            },
+            // { 
+            //     text: "JS笔记", 
+            //     children: JSNOTE_CHAPTERS
+            // },
             { 
                 text: "VitePress搭建博客并部署到GitHub Pages", 
                 children: [
@@ -54,7 +54,34 @@ module.exports = {
                 ]
             },
             {
-                text: "[exports与module.exports],[export与export default],[import与require]",
+                text: "AI",
+                children: [
+                    {
+                        text: "Transformer",
+                        link: "/AI/transformer"
+                    }
+                    
+                ]
+            },
+            { 
+                text: "React", 
+                children: [
+                    {
+                        text: "Fiber架构",
+                        link: "/React/Fiber"
+                    },
+                    {
+                        text: "笔记",
+                        link: "/React/note"
+                    },
+                    {
+                        text: "Q&A",
+                        link: "/React/questions"
+                    },
+                ]
+            },
+            {
+                text: "export and import",
                 children: [
                     {
                         text: "总结",
