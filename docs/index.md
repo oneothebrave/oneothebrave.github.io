@@ -31,7 +31,7 @@ title: 'Home'
 - ### 自己写的
 
 > 叉腰
-- [Transformer底层逻辑：从token到生成](/AI/transformer.md)
+- [AI | Transformer底层逻辑：从token到生成](/AI/transformer.md)
 - [VitePress搭建博客并部署到GitHub Pages](/vitepress-blog-setup.md)
 
 - [exports与module.exports,export与export default,import与require](/export-import.md)
@@ -40,5 +40,4 @@ title: 'Home'
 - [React | Fiber](/React/Fiber)
 - [React | 笔记](/React/note)
 - [React | 问答](/React/questions)
-- [AI | Transformer](/AI/transformer)
 
