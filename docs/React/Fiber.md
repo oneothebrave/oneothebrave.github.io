@@ -1,4 +1,4 @@
-# 为什么要引入Fiber？
+<!-- # 为什么要引入Fiber？
 
 旧的React采用的是“递归更新虚拟DOM”，在遇到大组件树时：
 
@@ -87,14 +87,14 @@ function App() {
     // div 节点
     type: "div",
     tag: HostComponent, // 因为它是DOM
-    stateNode: <div></div>,  // 真实 DOM 元素
+    stateNode: "<div></div>",  // 真实 DOM 元素
     memoizedState: null,
     
     child: {
       // h1 节点
       type: "h1",
       tag: HostComponent,
-      stateNode: <h1></h1>,
+      stateNode: "<h1></h1>",
       memoizedState: null,
       
       child: {
@@ -109,7 +109,7 @@ function App() {
         // button 节点
         type: "button",
         tag: HostComponent,
-        stateNode: <button></button>,
+        stateNode: "<button></button>",
         memoizedState: null,
         
         child: {
@@ -232,4 +232,4 @@ function resumeWork() {
 
 **同等优先级**：通常合并处理，不中断渲染。但同样会舍弃进度，从根节点重新开始
 
-**低优先级**：不会中断当前渲染
+**低优先级**：不会中断当前渲染 -->

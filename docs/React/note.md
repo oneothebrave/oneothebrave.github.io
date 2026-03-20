@@ -1,4 +1,4 @@
-
+<!-- 
 # 【React 笔记】
 
 
@@ -29,11 +29,11 @@
 ### ✅ 一个简单例子：
 
 ```js
-function Hello() {
-  return <h1>Hello, world!</h1>;
-}
+// function Hello() {
+//   return <h1>Hello, world!</h1>;
+// }
 
-ReactDOM.render(<Hello />, document.getElementById('root'));
+// ReactDOM.render(<Hello />, document.getElementById('root'));
 ```
 
 👉 这里的渲染流程如下：
@@ -220,7 +220,7 @@ function render() {
 	}
 	```
 	
- - 用 <div ref={myRef}>将对该节点的引用放入myRef.current中来操纵DOM元素
+ - 用 `<div ref={myRef}>`将对该节点的引用放入`myRef.current`中来操纵DOM元素
 
 
 
@@ -249,8 +249,7 @@ function render() {
    ```
  - 在useEffect()中返回一个函数，该函数被称为清理函数，React 会在每次 Effect **重新运行之前**调用清理函数，并在**组件卸载**（被移除）时最后一次调用清理函数
  - 全局变量不能作为响应式
- - useRef返回的ref对象可以作为依赖项,但是ref.current不能
-   ```
+ - `useRef`返回的ref对象可以作为依赖项,但是`ref.current`不能
 
 
 
@@ -355,7 +354,6 @@ switch (lazyComponent._status) {
   default:
     throw loadLazyComponent(lazyComponent);
 }
-
 ```
 
 
@@ -405,4 +403,4 @@ lazy 会把错误抛出来，交给最近的 ErrorBoundary 处理。
 
 
 
-
+ -->

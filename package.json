@@ -12,6 +12,6 @@
   "author": "oneo",
   "license": "ISC",
   "dependencies": {
-    "vitepress": "^0.12.2"
+    "vitepress": "^1.6.4"
   }
 }
