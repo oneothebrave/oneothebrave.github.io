@@ -101,7 +101,7 @@ Transformer 并不会直接对离散 id 进行计算，而是通过一个 embedd
 
 这是一张encoder层的概览。在完成之前的步骤后，一组向量（即一个矩阵）作为输入传入**self-attention**层，接着流入feed-forwar neural network层，然后作为该层encoder的输出流入下一层encoder
 
-![transformer-11](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-11.png)
+![image.png](/images/transformer-11.png)
 
 好，现在我们知道了“反正就是一个矩阵作为输入流入了第一层encoder，然后做了一些计算，输出的计算结果又作为第二层encoder的输入再进行一些计算” 。那么里面到底做了什么计算呢？在深入了解核心的**self-attention**层做了什么之前，我们先来看这么一句话：
 
@@ -111,7 +111,7 @@ Transformer 并不会直接对离散 id 进行计算，而是通过一个 embedd
 
 当模型处理每个单词（输入序列中的每个位置）时，自注意力机制使其能够查看输入序列中的其他位置，查找每个词和其他词之间的联系，寻找有助于更好地编码该单词的线索。
 
-![transformer-12](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-12.png)
+![image.png](/images/transformer-12.png)
 
 你可以通过在 [Tensor2Tensor notebook](https://colab.research.google.com/github/tensorflow/tensor2tensor/blob/master/tensor2tensor/notebooks/hello_t2t.ipynb) 中试验来查看每个词与其他词之间的关联程度
 
@@ -123,7 +123,7 @@ Transformer 并不会直接对离散 id 进行计算，而是通过一个 embedd
 
 计算self-attention的**第一步**是将每个输入的向量与：Query矩阵，Key矩阵，Value矩阵 这三个权重矩阵分别相乘得到query向量，key向量和value向量。因此，如果输入有3个token（图中所示），那么就会有3组query,key,value向量
 
-![transformer-13](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-13.png)
+![image.png](/images/transformer-13.png)
 
 > [!NOTE]
 >
@@ -154,7 +154,7 @@ result = d['color']
 
 
 
-![transformer-14](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-14.png)
+![image.png](/images/transformer-14.png)
 
 如图所示，attention score的计算方式是将`query`向量与待评分词的`key`向量进行点积运算。比如，要计算第一个单词的self-attention,第一个分数就是q1与k1的点积，代表词"I"对其自身的attention score，目的是确定在理解“I”这个词时，它本身的特征有多重要。第二个分数就是q1与k2的点积，代表词“I”对第二个词“am”的attention score，目的是确定在理解“I”这个词时，第二个词“am”提供了多少上下文信息。同理，第三个分数就是q1与k3的的点积，代表词“I”对第三个词“Batman”的attention score，目的是确定在理解“I”这个词时，第三个词“Batman”提供了多少上下文信息。
 
@@ -164,7 +164,7 @@ result = d['color']
 
 
 
-![transformer-15](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-15.png)
+![image.png](/images/transformer-15.png)
 
 **第五步**是将每个value向量乘以softmax score。这一步是注意力机制的**核心归宿**。如果说之前**q**,**k**是在寻找关联，那么这一步就是在提取并融合信息。Softmax算出的概率本质上是**权重**。将权重乘以Value向量，意味着：
 
@@ -178,7 +178,7 @@ result = d['color']
 
 
 
-![transformer-16](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-16.png)
+![image.png](/images/transformer-16.png)
 
 就好比你想自制一杯咖啡，Softmax 告诉你是“65% 的浓缩咖啡”加“30% 的牛奶”加“5%的厚奶泡”。乘以 **v** 的过程就是根据这个配方，真正把咖啡液和牛奶倒进杯子里混合。最后得到的 **z** 就是那杯调好的**卡布奇诺**。
 
@@ -188,7 +188,7 @@ result = d['color']
 
 **首先**将由一个个token经过embedding+positional-embedding组成的**输入矩阵X**去乘以**Query, Key, Value 三个权重矩阵**得到**Query, Key, Value矩阵**
 
-![transformer-17](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-17.png)
+![image.png](/images/transformer-17.png)
 
 
 
@@ -196,7 +196,7 @@ result = d['color']
 
 **最后**，由公式输出 Z 
 
-![transformer-18](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-18.png)
+![image.png](/images/transformer-18.png)
 
 > [!NOTE]
 >
@@ -233,7 +233,7 @@ result = d['color']
 
 从数学上看，它做的是：
 
-![transformer-19](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-19.png)
+![image.png](/images/transformer-19.png)
 
 每个 head 有自己独立的$W_Q$<sup>i</sup>， $W_K$<sup>i</sup>， $W_V $<sup>i</sup>，然后分别乘以输入，也就是**先分维，再乘**。
 
@@ -243,7 +243,7 @@ result = d['color']
 
 接着把8个头的输出*Z1,Z2 ... Z8*横向拼接在一起, 最后再乘一个权重矩阵 W<sup>O</sup>。最终得到一个流向FFNN的矩阵 --- 大写的Z矩阵
 
-![transformer-20](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-20.png)
+![image.png](/images/transformer-20.png)
 
 > [!WARNING]
 >
@@ -255,7 +255,8 @@ result = d['color']
 
 下面是整个流程的示意图：
 
-![transformer-21](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-21.png)
+
+![image.png](/images/transformer-21.png)
 
 整个过程就相当于：把一个高维空间拆成多个“语义子空间”，分别建模不同关系。
 
@@ -298,7 +299,8 @@ Layer norm的任务是将神经元的输出分布重新调整为均值为 0、�
 
 因此残差层的存在解决深层网络在训练过程中面临的**梯度消失（Gradient Vanishing）**和**模型退化（Degradation）**问题
 
-![transformer-22](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-22.png)
+
+![image.png](/images/transformer-22.png)
 
 
 
@@ -310,13 +312,15 @@ Layer norm的任务是将神经元的输出分布重新调整为均值为 0、�
 
 
 
-如果把add和norm操作具像化表示，看起来就是这样子：![transformer-23](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-23.png)
+如果把add和norm操作具像化表示，看起来就是这样子：
+![image.png](/images/transformer-23.png)
 
 
 
 一样的模式同样适用于decoder的子层：
 
-![transformer-24](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-24.png)
+
+![image.png](/images/transformer-24.png)
 
 
 
@@ -324,7 +328,8 @@ Layer norm的任务是将神经元的输出分布重新调整为均值为 0、�
 
 Attention层是负责处理 token 之间的水平交互，那么 FFNN 层就是负责对每个 token 进行 token 内部的特征转换。FFNN的全称叫 **Position-wise** FFNN，意味着它对序列中的每一个位置 x 独立地应用相同的线性变换。其标准结构包含 <u>两个线性层</u> 和一个*非线性激活函数:*
 
-![transformer-25](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-25.png)
+
+![image.png](/images/transformer-25.png)
 
 我们可以从FFNN具体做了什么的过程中理解这个函数：
 
@@ -367,7 +372,7 @@ Attention层是负责处理 token 之间的水平交互，那么 FFNN 层就是�
 
 在 Transformer 的设计中，Encoder 负责理解，Decoder 负责生成：一边观察着 Encoder 提供的上下文（Context），一边根据已经生成的字，推测下一个字。但这件事有一个矛盾：**训练时知道完整答案，推理时不知道**。模型必须在同一套结构下，既能在训练阶段并行处理整个目标序列（否则训练会慢到无法接受），又能在推理阶段严格保证"不能偷看未来"。解决这个问题的方式，就在Decoder的三层结构中。
 
-![](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-27.png)
+![image.png](/images/transformer-27.png)
 
 
 
@@ -381,7 +386,8 @@ Attention层是负责处理 token 之间的水平交互，那么 FFNN 层就是�
 
 在Transformer中是这么表示的：
 
-![transformer-26](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-26.png)
+
+![image.png](/images/transformer-26.png)
 
 
 
