@@ -549,7 +549,8 @@ Decoder 目标：   I      love    AI    [EOS]    ← 每个位置预测下一�
 
 Decoder层的FFN与Encoder层的FFN在**结构上完全相同**，都是包含 <u>两个线性层</u> 和一个*非线性激活函数*
 
-![transformer-25](/Users/larryling/Documents/oneothebrave.github.io/docs/images/transformer-25.png)
+
+![image.png](/images/transformer-25.png)
 
 但输入的**信息性质根本不同**：
 
