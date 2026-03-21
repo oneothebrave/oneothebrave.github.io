@@ -14,11 +14,11 @@
 
 ![image.png](/images/transformer-1.png)
 
-LLM(Large Language Model)在其中做了什么事呢？把脑子一刀劈开，就能发现它是由两大主要部分组成：**Encoders** 和 **Decoders**
+Transformer 模型在其中做了什么事呢？这里以 Encoder-Decoder 架构（如原始翻译场景）为例，就能发现它是由两大主要部分组成：**Encoders** 和 **Decoders**
 
 ![image.png](/images/transformer-2.png)
 
-**Encoders**是由一组encoder组成(图中有5个encoder，但实际不一定是5个，也可以是其他数字)。**Decoders**则是由一组decoder组成
+**Encoders**是由一组encoder组成(堆叠层数 N 是超参数，原始论文为 N=6，现代模型一般为 12、24、32 层不等)。**Decoders**则是由一组decoder组成
 
 ![image.png](/images/transformer-3.png)
 
@@ -28,9 +28,9 @@ LLM(Large Language Model)在其中做了什么事呢？把脑子一刀劈开，�
 
 输入进入encoder层后，首先会流入self-attention层。该层帮助encoder在encode特定单词时关注输入句子中的其他单词。我们将在本文后面更详细地探讨self-attention机制。
 
-self-attention层的输出会被喂给FFNN(Feed Forward Neural Network)层。【【还要补充这层的作用】】
+self-attention层的输出会被喂给FFNN(Feed Forward Neural Network)层。
 
-decoder层同样也有self-attention和FFNN, 但与encoder不同的是，它多了一层Encoder-Decoder Attention层，也叫Cross-attention层 【【还要补充这层的作用】】
+decoder层同样也有self-attention和FFNN, 但与encoder不同的是，它多了一层Encoder-Decoder Attention层，也叫Cross-attention层 
 
 ![image.png](/images/transformer-5.png)
 
@@ -46,7 +46,27 @@ decoder层同样也有self-attention和FFNN, 但与encoder不同的是，它多�
 
 在输入传入encoder之前，会先进行一个很重要的必需的操作：**Embedding**
 
-简单地说，embedding会把单词转化成行向量表示(为什么不是列向量？因为列向量代表隐藏向量的维度，后面会解释)。行向量就是一个 1✖️n  的矩阵，我们描述一个矩阵的形状，通常说这个矩阵是几行几列的，比如3✖️4 就是一个三行四列的矩阵。与Transformer打交道的就是矩阵。
+在 PyTorch 等主流框架中，输入矩阵 X 的 shape 为 $[seq\_len, d_{model}]$，即每一行对应一个 token 的 embedding 向量，这样才能直接右乘权重矩阵 W。行向量就是一个 1✖️n  的矩阵，我们描述一个矩阵的形状，通常说这个矩阵是几行几列的，比如3✖️4 就是一个三行四列的矩阵。与Transformer打交道的就是矩阵。
+
+
+
+> [!NOTE]
+>
+> 在研究Transformer的过程中经常可以看到说某个矩阵其维度为：$[batch\_size, seq\_len, d_{model}]$
+>
+> - $batch\_size$: **一次并行处理的样本数量**。比如值为2，就代表同时处理两句话。
+>
+>   “*可能你会有疑问。怎么算两句话，用句号问号等标点符号区分吗？这段话算几句话？*” 这算一句话。因为标点符号只是软约束，是概率模式，而不是硬约束。默认情况下，模型不会把它“结构化地”识别成两句话，只会当成一个连续 token 序列处理。
+>
+>   要想显式地把句子分成多句话，可以采用分隔符 **[SEP]**, 比如: "AI is helpful.[SEP] I love AI"， 此时$batch\_size$=2。
+>
+>   还有一种方法是完全拆开: batch = ["AI is helpful", "I love AI"] 这样两句话完全独立，不共享attention
+>
+> - $seq\_len$ : 每个序列的**token 数**（有多少行）
+>
+> - $d_{model}$: 每个 token 的**向量维度**，也叫隐藏状态维度(有多少列)
+
+
 
 这里展示了一个1✖️4和一个3✖️4的矩阵，下标代表该参数所在的行列数
 
@@ -58,34 +78,42 @@ decoder层同样也有self-attention和FFNN, 但与encoder不同的是，它多�
 
 ![image.png](/images/transformer-6.png)
 
-这里”I am Batman”被分成了三个单词，很简单对不对。尽管经过tokenizer,句子已经成为一个个单词了，但它们还是人类的单词，transformer只与矩阵打交道。那么接下来就要把一个个单词转化为向量，再把这些向量组合起来，矩阵就出现了。想象有一张很大的vocabulary表，记录了50000个单词，并给每个单词约定了一个id，类似于：
+这里”I am Batman”被分成了三个单词，尽管经过tokenizer,句子已经成为一个个单词了，但它们还是人类的单词，transformer只与矩阵打交道。那么接下来就要把一个个单词转化为向量，再把这些向量组合起来，矩阵就出现了。想象有一张很大的vocabulary表，并给每个单词约定了一个id，类似于：
+
+
 
 ![image.png](/images/transformer-7.png)
 
-> 这只是一张示意图，完全是假数据
+> 此处仅为示意，实际模型词表大小因设计而异
 > 
 
-那么几乎每一个单词都有了它对应的ID。为什么说几乎呢，因为有些单词是不同的时态表示或者结尾带了 **‘s,** 更何况人们隔三差五就会创造出一个新词，所以显然不会也不能把所有的单词都录入进这张vocabulary表中，但是在tokenization的时候可以把这种”特殊单词“拆分，找到它们各自的id，再组合起来。比如”I am Batman’s enemy”, 其中”Batman’s” 就会被分成”Batman” 和 “’s”， 然后在表中找到各自映射的id，从而就有了”Batman’s”这类单词的表示。
+
+
+每一个单词几乎都有了对应的ID。为什么说几乎呢，因为有些单词是不同的时态表示或者结尾带了 **‘s,** 更何况人们隔三差五就会创造出一个新词，所以显然不会也不能把所有的单词都录入进这张vocabulary表中，但是在tokenization的时候可以把这种”特殊单词“拆分，找到它们各自的id，再组合起来。比如”I am Batman’s enemy”, 其中”Batman’s” 就会被分成”Batman” 和 “’s”， 然后在表中找到各自映射的id，从而就有了”Batman’s”这类单词的表示。
 
 也许你已经注意到了，用“单词”这个说法并不准确。实际上，它们被称作“token”，token可以是英语单词，也可以是”##le”，甚至可以是“🍎”。 这很好地与tokenization联系了起来。也可以联想到AI公司提供LLM的api都明确标注了价格，比如$4/million token
 
 在完成 tokenization 之后，每个 token 会被映射为一个离散的 token id，这个id不携带意义，没有大小关系，没有语义，只是一个索引。接下来进入到embedding。
 
-Transformer 并不会直接对离散 id 进行计算，而是通过一个 embedding layer，将 token id 映射为一个连续向量。说白了，embedding 层仅根据 token id 从已训练好的 embedding 矩阵中查找对应向量，即又是一个查表的操作。参数保持冻结，不参与损失计算或梯度更新(这是训练阶段做的事)。
+Transformer 并不会直接对离散 id 进行计算，而是通过一个 embedding layer，将 token id 映射为一个连续向量。即embedding 层仅根据 token id 从已训练好的 embedding 矩阵中查找对应向量，即又是一个查表的操作。在推理阶段，参数保持冻结，不参与损失计算或梯度更新。在训练阶段则是**可训练参数**，会通过反向传播被更新。
 
 ![image.png](/images/transformer-8.png)
 
-一个token对应一个向量，多个token就组成了一个矩阵。等等，先在这停顿，这个表是怎么来的？我们前面描述的 Embedding阶段的查表操作是在Inference(推理)阶段才会这么做，这么做的前提是Training / Pre-training / Fine-tuning（训练）阶段训练好了这张表。训练阶段做了什么呢？
+一个token对应一个向量，多个token就组成了一个矩阵。这个表是怎么来的呢？我们前面描述的 Embedding阶段的查表操作是在Inference(推理)阶段才会这么做，这么做的前提是Training / Pre-training / Fine-tuning（训练）阶段训练好了这张表。训练阶段做了什么呢？
 
 在训练阶段，embedding 矩阵作为 Transformer 模型的可训练参数之一，通过反向传播和梯度下降最小化语言建模损失，即优化损失函数；训练完成后，该矩阵参数被冻结，在推理阶段仅用于根据 token id 查询对应的向量表示。
+
+
 
 > [!NOTE]
 >
 > 最开始的，未被训练的embedding矩阵是通过随机初始化得到的，**不包含任何语义信息**，只是满足数值稳定性的随机值。来自于均匀分布，正态分布等。
 
-现在我们有了一个矩阵，终于可以进入encoder了….吗？ 还不行。
 
-组成句子的 token 集合可能完全相同，但不同的顺序会导致语义发生变化，比如["dog", "bites", "man"] 和 ["man", "bites", "dog"]会产生完全相同的attention分布。在 Transformer 中，encoder层中的 self-attention 的计算本身对输入顺序是置换不敏感的，如果仅使用 token embedding，模型无法区分这类顺序不同但 token 相同的句子。因此，必须在构造 encoder 输入表示时显式引入位置信息。传统做法是将使用sin / cos 生成的 positional embedding 与 token embedding 在同一维度空间中逐元素相加，从而使后续的 attention 计算能够同时利用语义信息和位置信息。现代模型已经改用旋转位置编码(RoPE)。
+
+然而组成句子的 token 集合可能完全相同，但不同的顺序会导致语义发生变化，比如["dog", "bites", "man"] 和 ["man", "bites", "dog"]会产生完全相同的attention分布。在 Transformer 中，encoder层中的 self-attention 的计算本身对输入顺序是置换不敏感的，如果仅使用 token embedding，模型无法区分这类顺序不同但 token 相同的句子。因此，必须在构造 encoder 输入表示时显式引入位置信息。传统做法是使用sin / cos 生成positional embedding， **PE 与 token embedding 维度相同（均为 d_model），对应位置逐元素相加**，从而使后续的 attention 计算能够同时利用语义信息和位置信息。现代模型已经改用旋转位置编码(RoPE)。
+
+
 
 ![image.png](/images/transformer-9.png)
 
@@ -93,7 +121,7 @@ Transformer 并不会直接对离散 id 进行计算，而是通过一个 embedd
 >
 > 你可能会有疑问：E与PE相加后，会不会出现等于另一个E / E+PE 这种情况？
 >
-> 不会。在高维球面上，随机移动一个微小的距离正好落在另一个有效单词语义中心点上的概率，在数学上几乎为零
+> 不会。高维空间中向量的数量远大于词汇表的大小，embedding 向量之间的距离分布集中在一个较大的均值附近，因此两个不同 token 的 embedding 向量相加后的结果几乎不会与第三个 token 的 embedding 重合
 
 
 
@@ -103,7 +131,7 @@ Transformer 并不会直接对离散 id 进行计算，而是通过一个 embedd
 
 ![image.png](/images/transformer-11.png)
 
-好，现在我们知道了“反正就是一个矩阵作为输入流入了第一层encoder，然后做了一些计算，输出的计算结果又作为第二层encoder的输入再进行一些计算” 。那么里面到底做了什么计算呢？在深入了解核心的**self-attention**层做了什么之前，我们先来看这么一句话：
+好，现在我们知道了“一个矩阵作为输入流入了第一层encoder，然后做了一些计算，输出的计算结果又作为第二层encoder的输入再进行一些计算” 。那么里面到底做了什么计算呢？在深入了解核心的**self-attention**层做了什么之前，我们先来看这么一句话：
 
 ##### ”`The animal didn't cross the street because it was too tired`”
 
@@ -131,9 +159,15 @@ Transformer 并不会直接对离散 id 进行计算，而是通过一个 embedd
 >
 > 在训练阶段之前，它们就是由深度学习框架（如Tensorflow,  pyTorch）随机生成的复合特定分布（如正态分布）的参数矩阵。真正赋予它们“灵魂”是在训练过程中。
 >
-> <u>训练是在已知**标签（Label）的前提下，通过梯度下降算法更新模型参数（Weights）**，从而**最小化**损失函数，使模型的输出分布不断接近真实数据的分布的过程。</u>  其中包括前向传播，计算损失，反向传播，参数更新这几个过程，其中参数更新就是根据梯度更新矩阵中的数值。就这样经过百万次的迭代之后，这三个矩阵逐渐学到了如何提取有意义的特征。
+> <u>训练是在已知**标签（Label）的前提下，通过梯度下降算法更新模型参数（Weights）**，从而**最小化**损失函数，使模型的输出分布不断接近真实数据的分布的过程。</u>  其中包括前向传播，计算损失，反向传播，参数更新这几个过程，其中参数更新就是根据梯度更新矩阵中的数值。在经过百万次的迭代之后，这三个矩阵逐渐学到了如何提取有意义的特征。
 >
 > 例如：W_Q 可能会学到在处理动词时，去寻找句子中的主语特征; W_K可能会学到在处理名词时，将其标记为潜在的主语或宾语特征，以便回应W_Q 的寻找;W_V可能会学到在识别到核心实体时，提取其具体的语义信息（如词义、词性或时态），作为最终输出的实质内容。这只是拟人化的解释，实际这三个矩阵的 512 或 1024 个维度往往是**高度抽象且交织**的
+
+> [!TIP]
+>
+> - **Q (Query)**：当前 Token 正在“寻找”什么。
+> - **K (Key)**：当前 Token 能向其他 Token “提供”什么。
+> - **V (Value)**：当前 Token 携带的“具体信息”。
 
 
 
@@ -158,7 +192,7 @@ result = d['color']
 
 如图所示，attention score的计算方式是将`query`向量与待评分词的`key`向量进行点积运算。比如，要计算第一个单词的self-attention,第一个分数就是q1与k1的点积，代表词"I"对其自身的attention score，目的是确定在理解“I”这个词时，它本身的特征有多重要。第二个分数就是q1与k2的点积，代表词“I”对第二个词“am”的attention score，目的是确定在理解“I”这个词时，第二个词“am”提供了多少上下文信息。同理，第三个分数就是q1与k3的的点积，代表词“I”对第三个词“Batman”的attention score，目的是确定在理解“I”这个词时，第三个词“Batman”提供了多少上下文信息。
 
-**第三步**是将得到的score除以8（默认值）。这么做是防止点积值因随维度增大而变大，进而Softmax 饱和，从而导致梯度消失
+**第三步**,  由于随机初始化的向量做点积后，其方差约为 $d_k$，因此点积的量级随 $d_k$ 线性增大, 因此将得到的score**除以 $√d_k$（此处 $d_k$=64，故为8），目的是控制点积的方差量级，防止 Softmax 进入饱和区间, 导致梯度消失**
 
 **第四步**是将第三步得到的值转为概率分布，实现加权关注，即：Softmax。Softmax 会对分数进行归一化处理，使它们全部为正数且总和为 1。
 
@@ -166,7 +200,7 @@ result = d['color']
 
 ![image.png](/images/transformer-15.png)
 
-**第五步**是将每个value向量乘以softmax score。这一步是注意力机制的**核心归宿**。如果说之前**q**,**k**是在寻找关联，那么这一步就是在提取并融合信息。Softmax算出的概率本质上是**权重**。将权重乘以Value向量，意味着：
+**第五步**是将每个value向量乘以softmax score。这一步完成了信息的加权聚合。如果说之前**q**,**k**是在寻找关联，那么这一步就是在提取并融合信息。Softmax算出的概率本质上是**权重**。将权重乘以Value向量，意味着：
 
 - 高权重(0.65, 0.30)：保留改词的大部分特征信息(value)
 
@@ -180,11 +214,9 @@ result = d['color']
 
 ![image.png](/images/transformer-16.png)
 
-就好比你想自制一杯咖啡，Softmax 告诉你是“65% 的浓缩咖啡”加“30% 的牛奶”加“5%的厚奶泡”。乘以 **v** 的过程就是根据这个配方，真正把咖啡液和牛奶倒进杯子里混合。最后得到的 **z** 就是那杯调好的**卡布奇诺**。
 
 
-
-上述步骤的计算结果就会继续流入feed-forward neural network层。在实际实现中，为了加快处理速度，该计算以矩阵形式进行（将同纬度的向量组合起来其实就是矩阵，所以在理解上并没有什么不同）
+上述步骤的计算结果就会继续流入feed-forward neural network层。在实际实现中，为了加快处理速度，该计算以矩阵形式进行（将同维度的向量组合起来其实就是矩阵，所以在理解上并没有什么不同）
 
 **首先**将由一个个token经过embedding+positional-embedding组成的**输入矩阵X**去乘以**Query, Key, Value 三个权重矩阵**得到**Query, Key, Value矩阵**
 
@@ -198,21 +230,17 @@ result = d['color']
 
 ![image.png](/images/transformer-18.png)
 
+
+
+想象你想自制一杯咖啡，Softmax 告诉你是“65% 的浓缩咖啡”加“30% 的牛奶”加“5%的厚奶泡”。乘以 **v** 的过程就是根据这个配方，真正把咖啡液和牛奶倒进杯子里混合。最后得到的 **z** 就是那杯调好的**卡布奇诺**。
+
+
+
 > [!NOTE]
 >
 > **Z的行数严格等于输入序列的长度**。  
 >
 > 从向量的视角看的话，第一个token生成的z1在Z的第一行，第二个token生成的z2在Z的第二行 ....
-
-
-
-> [!TIP]
->
-> - **Q (Query)**：当前 Token 正在“寻找”什么。
-> - **K (Key)**：当前 Token 能向其他 Token “提供”什么。
-> - **V (Value)**：当前 Token 携带的“具体信息”。
-
-
 
 
 
@@ -224,6 +252,9 @@ result = d['color']
 - **头 2** 专注于时态（“am” 代表现在时）。
 - **头 3** 专注于情感或特定专有名词（“Batman” 的特殊含义）
 - ....
+
+> 这只是直觉上的拟人化描述，实际上每个头学到的模式是通过训练涌现的，并不可预先指定
+>
 
 
 
@@ -237,7 +268,7 @@ result = d['color']
 
 每个 head 有自己独立的$W_Q$<sup>i</sup>， $W_K$<sup>i</sup>， $W_V $<sup>i</sup>，然后分别乘以输入，也就是**先分维，再乘**。
 
-可以发现，两者其实是等价的。实际实现中选择先乘再切的路径是出于GPU计算效率，性能优化的考虑。
+可以发现，在数学表达能力上两者等价，实际实现中通常采用前者以利用 GPU 的大矩阵运算效率。
 
 **切分**完成后，将这三对各8组矩阵分别独立进行刚才的`Score -> Softmax -> Weighting` 过程,也就是8个单头计算，每个头计算结束都会输出一个**该头的Z**，总共输出8个相同形状的Z矩阵(n行64列，n取决于输入序列，还记得吧)。
 
@@ -277,7 +308,7 @@ result = d['color']
 >
 > 问：为什么要乘以一个权重矩阵 W<sup>O</sup>？
 >
-> 答：W<sup>O</sup> 承担了**“融合”**与**“统一”**的任务，最终与W_O相乘的那个矩阵的每一个维度都融合了来自不同“头”的特征信息，W<sup>O</sup>让来自不同头的信息进行**跨头交换**, 决定“如何整合所有视角的发现”（产生最终表示）。
+> 答：W<sup>O</sup> 承担了**“融合”**与**“统一”**的任务，最终与W<sup>O</sup> 相乘的那个矩阵的每一个维度都融合了来自不同“头”的特征信息，W<sup>O</sup>让来自不同头的信息进行单向的**跨头交换**, 决定“如何整合所有视角的发现”（产生最终表示）。
 >
 > 
 >
@@ -297,7 +328,7 @@ Add做的事其数学表达式极为简洁：**Output = x + Sublayer(x)**。
 
 Layer norm的任务是将神经元的输出分布重新调整为均值为 0、方差为 1 的标准分布。简单来说，就是将标准化后的向量进行一次线性变换：乘以一个训练出来的系数，再加上一个训练出来的常数。保证了无论输入数据的量级如何波动，传递到下一层的数值始终处于一个“可控”的范围内，从而极大增强了训练的稳定性。
 
-因此残差层的存在解决深层网络在训练过程中面临的**梯度消失（Gradient Vanishing）**和**模型退化（Degradation）**问题
+因此残差层的存在解决深层网络在训练过程中面临的**梯度消失（Gradient Vanishing）**和**模型退化（Degradation）**问题，以及控制每层输出的数值分布，加速训练收敛
 
 
 ![image.png](/images/transformer-22.png)
@@ -308,7 +339,7 @@ Layer norm的任务是将神经元的输出分布重新调整为均值为 0、�
 >
 > 由于残差连接引入了 **x+f(x)** 结构，所以当对这个函数求x的偏导时就会得到 **1+f'(x)** 。这样，即使在反向传播的过程中，f'(x)连续多层都非常小（例如接近于0），有了**“1”**的存在，梯度也不会在传播过程中消失，梯度依然能通过那个 **“1”** 顺畅地流回底层。
 >
-> 另外，Self-Attention 是一个极具“侵略性”的操作，它会根据上下文大幅度改写词向量的数值，可能导致原始词汇的某些关键特征丢失。通过 **x + Attention(x)**，模型在获取上下文信息的同时，强制保留了原始输入的特征。这对于保持语义的一致性至关重要。
+> 另外，Self-Attention 是一个极具“侵略性”的操作，它会根据上下文大幅度改写词向量的数值，不加残差连接时，原始 token 的局部特征可能被全局聚合结果所覆盖，导致模型难以利用词本身的静态语义。通过 **x + Attention(x)**，模型在获取上下文信息的同时，强制保留了原始输入的特征。这对于保持语义的一致性至关重要。
 
 
 
@@ -354,9 +385,9 @@ Attention层是负责处理 token 之间的水平交互，那么 FFNN 层就是�
 > 3. 带入后可得 y = ( x · W~1~) · W~2~ = x · (W~1~ · W~2~)
 > 4. W~1~ · W~2~ 只是另一个矩阵 W~new~ , 所以 **y = x · W~new~**
 >
-> 由此可见，无论有多少个线形层，从数学上来看都等价于一层。这样的函数就相当于初中学过的二维坐标轴上的线性规划，因此，只能在多维空间中画平面来切分数据。但真实世界的数据可能是环形或螺旋形的，线性平面永远无法将其正确切分。
+> 由此可见，由于矩阵乘法满足结合律，任意多个线性层的复合仍是线性变换，因此等价于单个线性层。这样的函数就相当于上学时学过的二维坐标轴上的**线性变换**，纯线性变换只能在高维空间中划出超平面，无法拟合非线性的数据分布，因此，只能在多维空间中画平面来切分数据。但真实世界的数据可能是环形或螺旋形的，线性平面永远无法将其正确切分。
 >
-> 引入**ReLU** 之后，函数变成了 y = x · max(0, W~1~)· W~2~  就具备了拟合任何复杂曲线和边界的能力。
+> 引入**ReLU** 之后，函数变成了 y = max(0, x · W~1~)· W~2~  就具备了拟合任何复杂曲线和边界的能力。
 
 > [!IMPORTANT]
 >
@@ -370,11 +401,15 @@ Attention层是负责处理 token 之间的水平交互，那么 FFNN 层就是�
 
 # Decoder
 
-在 Transformer 的设计中，Encoder 负责理解，Decoder 负责生成：一边观察着 Encoder 提供的上下文（Context），一边根据已经生成的字，推测下一个字。但这件事有一个矛盾：**训练时知道完整答案，推理时不知道**。模型必须在同一套结构下，既能在训练阶段并行处理整个目标序列（否则训练会慢到无法接受），又能在推理阶段严格保证"不能偷看未来"。解决这个问题的方式，就在Decoder的三层结构中。
+我们先来看Decoder的整体架构图：
+
+
 
 ![image.png](/images/transformer-27.png)
 
 
+
+在 Transformer 的设计中，Encoder 负责将输入序列编码为上下文感知的隐状态表示；Decoder 负责一边观察着 Encoder 提供的上下文（Context），一边根据已经生成的token，推测下一个token。但这件事有一个矛盾：**训练时知道完整答案，推理时不知道**。模型必须在同一套结构下，既能在训练阶段并行处理整个目标序列（否则训练会慢到无法接受），又能在推理阶段严格保证"不能偷看未来"。解决这个问题的方式，就在Decoder的三层结构中。
 
 
 
@@ -384,7 +419,7 @@ Attention层是负责处理 token 之间的水平交互，那么 FFNN 层就是�
 
 > 给定输入 x，输出 y 的概率是多少？
 
-在Transformer中是这么表示的：
+根据链式法则，P(y|x) 可以分解为各位置条件概率的连乘，这就是自回归生成的数学基础。在Transformer中是这么表示的：
 
 
 ![image.png](/images/transformer-26.png)
@@ -407,7 +442,7 @@ Attention层是负责处理 token 之间的水平交互，那么 FFNN 层就是�
 
 这也就是decoder中的一个核心：**自回归生成(Autoregressive)**。 "自回归"的字面意思是: **用自己过去的输出作为下一步的输入**。但在训练阶段和推理阶段，自回归的输入会有所不同。
 
-在**推理阶段**，第 $t$ 个字必须依赖第 $t-1$ 个字的结果，这种逻辑依赖在时间轴上是**线性不可并行**的。比如：
+在**推理阶段**，第 $t$ 个词必须依赖第 $t-1$ 个词的结果，这种逻辑依赖在时间轴上是**线性不可并行**的。比如：
 
 > 已知: "AI is helpful,"  →  预测: "I" 
 >
@@ -417,7 +452,7 @@ Attention层是负责处理 token 之间的水平交互，那么 FFNN 层就是�
 >
 > 已知: "AI is helpful, I love AI"  →  预测: [EOS]
 
-天然串行，你不知道第1个词是什么，就没法预测第2个词
+你不知道第1个词是什么，就没法预测第2个词
 
  
 
@@ -436,7 +471,17 @@ Attention层是负责处理 token 之间的水平交互，那么 FFNN 层就是�
 - 看到 *[BOS] I love*, 应该输出"AI"
 - 看到 *[BOS] I love AI*, 应该输出 [EOS]
 
+> 【BOS】 就是 Beginning of Sequence 的缩写.   [EOF] 是 End of Sequence 的缩写
+
 看起来似乎与推理阶段并无二样，都是根据已有的输入推测出下一个输出。但关键点就在于 **训练时已经知道答案了**。**Teacher forcing**的机制是模型根据源输入 *x*，推测出第一个输出，但是第二份输入并**不是**由 ***x* + 模型推测出的第一个输出** 组成的(与推理阶段不同)，而是由 ***x* + 答案中对应的第一个词** 组成的。所以在训练阶段，模型推测下一个词永远是基于正确答案的基础上。
+
+
+
+> [!WARNING]
+>
+> 由于推理时，每个位置的输入是**模型自己上一步的输出**，这也意味着一旦某一步出错，错误就会沿着序列传播放大。因为模型训练时的**输入分布**（ground truth token）和推理时的**输入分布**（模型自身预测的 token）之间存在 mismatch，所以输出会一错再错。也就会造成模型**一本正经地胡言乱语**情况的发生，这就是并行训练的代价：**Exposure Bias **(曝光偏移)
+
+
 
 那么这是否意味着训练阶段的机制是，已知 *x* ，得出推测的 *y~1~*，然后用答案里的 *Y~1~* 替代 *y~1~*，接着进行下一步推测呢？ 不是的，因为这样就串行了，训练效率会大打折扣。实际上，思考下训练的目的，**我们不关心模型的预测结果是什么，我们只关心它的损失函数**。而损失函数就是预测值和实际值之间的差别，现在我们已经有了实际值，只需要得到在对应位置的预测值就能计算损失函数。因此整个过程完全可以是并行计算的。
 
@@ -463,11 +508,7 @@ Attention层是负责处理 token 之间的水平交互，那么 FFNN 层就是�
 > love         [  ✓         ✓        ✓         ✗  ]   ← 能看前两个和自己
 > AI   	  [  ✓         ✓        ✓        ✓  ]   ← 能看所有
 
-还记得做self-attention时有一个步骤是做 **Softmax** 吗，✗ 的位置填入 `-∞`，经过 Softmax 之后变成 0，**等效于这个位置的信息不存在**，看起来像是遮住了输出，实际就是切断了attention的路径。
-
-> [!WARNING]
->
-> 由于推理时，每个位置的输入是**模型自己上一步的输出**，这也意味着一旦某一步出错，错误就会沿着序列传播放大。因为模型训练时没有遇到过“前面是错的”这种情况，所以输出会一错再错。也就会造成模型**正儿八经地胡言乱语**情况的发生，这就是并行训练的代价：**Exposure Bias **(曝光偏移)
+还记得做self-attention时有一个步骤是做 **Softmax** 吗，**将✗位置的 attention score 设为 -∞，使其经过 Softmax 后权重为 0，从而在加权求和 V 时，该位置对当前 token 的输出贡献为零——等效于该位置在计算时不可见。**
 
 
 
@@ -475,21 +516,35 @@ Attention层是负责处理 token 之间的水平交互，那么 FFNN 层就是�
 
 ### Cross attention
 
-我们已经了解了decoder的基础层：Masked self-attention。 接下来进入到连接层: Cross attention, 也叫做 **Encoder-Decoder Attention**, 这是decoder最独特的地方。回看decoder整体的架构，可以看到在Encoder-Decoder Attention层，有一个箭头指向它，这个箭头来自Encoder层的输出 **矩阵Z**。 看到这，自然又有一个疑惑产生了，为什么Encoder的输出流向Encoder-Decoder Attention呢，为什么不是decoder self-attention？不是说好了有源输入x，才能推测出第一个字，然后才能推出第二个字吗，现在decoder self-attention什么输入也没有，之前提到的Teacher Forcing + Masked self-attention机制难道没用了吗？
+我们已经了解了decoder的基础层：Masked self-attention。 接下来进入到连接层: Cross attention, 也叫做 **Encoder-Decoder Attention**, 这是decoder最独特的地方。回看decoder整体的架构，可以看到在Encoder-Decoder Attention层，有一个箭头指向它，这个箭头来自Encoder层的输出 **矩阵Z**。为什么Encoder的输出流向Encoder-Decoder Attention呢，为什么不是decoder self-attention？据前文可知，有源输入x，才能推测出第一个词，然后才能推出第二个词吗，现在decoder self-attention什么输入也没有，之前提到的Teacher Forcing + Masked self-attention机制难道没用了吗？
 
 为了解答这个疑惑，我们同样从训练阶段和推理阶段解析。
 
-在**推理阶段**，decoder self-attention并不是没有任何输入，推理开始时, decoder 有一个**人工给定的起始特殊 token**: [BOS] 。然后推理第一步的完整流程就开始了：**输入 [BOS]**  ----> **Embedding + Positional Embedding** ----> **Masked self-attention** ----> **得到一个隐状态矩阵h**  ----> **Q = h * W<sup>Q</sup>**  ----> **Cross-attention (与Encoder的K，V结合)** ----> **预测出第一个词**
+在**推理阶段**，decoder self-attention**并不是没有任何输入**，推理开始时, decoder 有一个**人工给定的起始特殊 token**: [BOS] 。然后推理第一步的完整流程就开始了：
+
+**输入 [BOS]**  
+
+----> **Embedding + Positional Embedding** 
+
+----> **Masked self-attention** 
+
+----> **得到一个隐状态矩阵h** 
+
+ ----> **Q = h * W<sup>Q</sup>**（此处 WQ 是 Cross-Attention 层独立的可训练参数，与 Masked Self-Attention 层的 WQ 不共享）  
+
+----> **Cross-attention (与Encoder的K，V结合)** 
+
+----> **预测出第一个词**
+
+
 
 > [!TIP]
->
-> - 【BOS】 就是 Beginning of Sequence 的缩写.   [EOF] 是 End of Sequence 的缩写
 >
 > - 和encoder层一样，decoder也有Embedding + Positional Embedding
 >
 > - decoder的W<sup>Q</sup>和encoder的W<sup>Q</sup>, W<sup>K</sup>, W<sup>V</sup>一样，一开始也是随机生成的复合特定分布的参数矩阵，而后经过训练的矩阵
 >
-> - encoder层的输出是一个矩阵Z，因此这里的与encoder的K，V结合实际说的是decoder 拿到 Z 之后，**实时计算** K 和 V:
+> - encoder层的输出是一个矩阵Z，因此这里的与encoder的K，V结合实际说的是decoder 拿到 Z 之后，得到 K 和 V。**Z 在整个解码过程中保持不变，对应的 K 和 V 也只需计算一次，与 Decoder Self-Attention 中随序列增长而扩展的 KV Cache 性质不同**
 >
 >   K = Z * W<sup>K</sup>       ← Z 乘以一个可训练的投影矩阵
 >
@@ -552,11 +607,13 @@ Decoder层的FFN与Encoder层的FFN在**结构上完全相同**，都是包含 <
 
 ![image.png](/images/transformer-25.png)
 
-但输入的**信息性质根本不同**：
+但输入的**信息性质本质上不同**：
 
 **Encoder FFN 的输入**：仅包含源输入序列的自注意力特征。
 
 **Decoder FFN 的输入**：包含目标输出已生成序列的特征，且这些特征已经通过 Cross-Attention 层深度融合了源输入的信息。
+
+FFN 的权重是输入分布的函数。输入分布不同 → 梯度方向不同 → 收敛点不同。结构相同只意味着计算图相同，不意味着学到的特征相同
 
 因此，两者在训练过程中学习到的权重完全不同
 
@@ -576,26 +633,9 @@ $$
 - h shape: [seq_len, d_model]
 - W~vocab~  shape: [d_model, vocab_size] 
 - logits shape: [seq_len, vocab_size] 
+- b ：可训练的偏置向量
 
 词汇表有多大，输出就有多少维。每一个维度对应词汇表里的一个 token，数值叫做 **logit**。代表了模型认为“下一个词是该单词”的**原始信心得分**。得分越高，可能性越大。
-
-> [!TIP]
->
-> 在研究Transformer的过程中经常可以看到说某个矩阵其维度为：$[batch\_size, seq\_len, d_{model}]$
->
-> - $batch\_size$: **一次并行处理的样本数量**。比如值为2，就代表同时处理两句话。
->
->   “*可能你会有疑问。怎么算两句话，用句号问号等标点符号区分吗？这段话算几句话？*” 这算一句话。因为标点符号只是软约束，是概率模式，而不是硬约束。默认情况下，模型不会把它“结构化地”识别成两句话，只会当成一个连续 token 序列处理。
->
->   要想显式地把句子分成多句话，可以采用分隔符 **[SEP]**, 比如: "AI is helpful.[SEP] I love AI"， 此时$batch\_size$=2。
->
->   还有一种方法是完全拆开: batch = ["AI is helpful", "I love AI"] 这样两句话完全独立，不共享attention
->
-> - $seq\_len$ : 每个序列的**token 数**（有多少行）
->
-> - $d_{model}$: 每个 token 的**向量维度**，也叫隐藏状态维度(有多少列)
-
-
 
 由于logit是原始得分，范围在$(-\infty, +\infty) $，不能直接用。因此需要 **Softmax** 把它转换成概率分布，这样就会产生一个长度为 $\text{vocab\_size}$ 的概率向量，每一个位置代表选择该单词的概率。
 
@@ -608,7 +648,7 @@ $$
 > - Embedding 矩阵：  [vocab_size, d_model]      把 token id → 向量 
 > - Linear 矩阵：           [d_model, vocab_size]      把向量 → logits
 >
-> 两者互为转置，**本质上是同一件事的正向和反向**，共享参数既减少了参数量，也让两端的语义空间保持一致
+> 两者互为转置，**本质上是用同一个参数矩阵 E（shape [vocab_size, d_model]），在 Embedding 阶段直接用行查找，在 Linear 阶段用其转置做投影**，共享参数既减少了参数量，也让两端的语义空间保持一致
 
 
 
@@ -628,13 +668,25 @@ $$
 
 **A**：  
 
-KV Cache的核心逻辑是**空间换时间**，在decoder阶段，更准确地说是在autoregressive阶段，只计算当前最新输入的那个 Token 的Q, K, V，而历史 Token 的 K 和 V 直接从内存中读取。
+**KV Cache 的核心逻辑是空间换时间，只计算当前最新输入的那个 Token 的 Q, K, V，而历史 Token 的 K 和 V 直接从内存中读取。**
 
-问题根源来自于自回归的本质：Transformer 生成文本是**逐 token 自回归**的。如果没有KV Cache，假设当前序列长度为 n，生成	第 n+1 个 token 时，前 n 个 token 的 K、V **和上一步完全相同**，却要被重新计算一遍。这种计算量随序列长度呈**平方级**增长（$O(N^2)$）。
+问题根源来自自回归生成的本质：生成第 n+1 个 token 时，前 n 个 token 的 K、V 与上一步完全相同，若不加缓存则需重新计算，造成大量冗余。
 
-因此KV Cache 的核心在于：**只计算当前最新输入的那个 Token 的 Q, K, V，而历史 Token 的 K 和 V 直接从内存中读取**。 这也就意	味着每计算完一个token的k~t~，v~t~就把值写入缓存 [k~1~, ...., k~n~],  [v~1~, ...., v~n~]。这样子，当计算到第n+1个token时，仅为第 $n+1$个 	token 计算 $q_{n+1}, k_{n+1}, v_{n+1}$ , 接着将$k_{n+1}, v_{n+1}$也写入缓存，就像之前做的那样。然后使用当前 $q_{n+1}$ 去与 **全部** 的 $K$做点积，得到	注意力权重。最后将权重作用于 **全部** 的 $V$。KV Cache 将生成过程从“每次重算整个序列”简化为“每次只算一个新点”，此时单步生成复杂	度减少为了$O(N)$。
+KV Cache 的做法是：每计算完第 t 个 token，就将其 k~t~，v~t~写入缓存。生成第 n+1 个 token 时，仅计算新 token 的  $q_{n+1}, k_{n+1}, v_{n+1}$，将后两者追加入缓存，再用 $q_{n+1}$ 与缓存中全部 K 做点积，得到注意力权重，最后加权聚合全部 V。单步计算复杂度由重复 forward pass 降为 O(N)（N 为当前序列长度）。需要注意的是，这个 O(N) 是单步的复杂度；生成长度为 M 的序列，总复杂度仍为 O(M·N + M²)，KV Cache 消除的是冗余的重复计算，而非 Self-Attention 本身的平方复杂度——后者是独立问题，由 FlashAttention 等方法处理。
 
-那么代价是什么呢？KV Cache 随序列增长而迅速增大。例如 FP16 精度下，一个 7B 模型在 2048 上下文时，KV Cache 可能占用约 1GB 显存。这也就是空间换时间，瓶颈从 GPU 的计算能力转移到了**显存带宽**
+代价则是KV Cache 随序列增长而迅速增大。其占用可由以下公式估算：
+
+$KV Cache=2 × Nlayers × d_{model} × seq\_len × bytes per element$
+
+例如 FP16 精度下，一个 7B 模型在 2048 上下文时，KV Cache 可能占用约 1GB 显存。
+
+计算过程为：7B 模型一般是 32 层，d_model=4096，2048 token，FP16=2 bytes：
+
+$2×32×4096×2048×2≈1.07GB$
+
+这也就是空间换时间，瓶颈从 GPU 的计算能力转移到了**显存带宽**
+
+
 
 
 
@@ -644,12 +696,10 @@ KV Cache的核心逻辑是**空间换时间**，在decoder阶段，更准确地�
 
 **A：**
 
-因为KV Cache只加速了decoding阶段，并没有加速prefill阶段。因此慢的主要原因是 Prefill 阶段的计算量
+因为KV Cache只加速了decoding阶段，并没有加速prefill阶段。因此慢的主要原因是 Prefill 阶段需要对整个 prompt 的所有 token 并行计算完整的 Self-Attention（O(N²) 复杂度），并将所有 K、V 写入缓存；而 Decode 阶段每步只计算一个新 token 的 Q 并与缓存的 K、V 做点积（O(N) 复杂度）
 
 - Prefill：  用户输入 prompt，并行计算所有 token 的 KV → 存入 cache           这一步无法跳过，必须全量计算 
 - Decode：   逐个生成新 token，每步只算新 Q，KV 从 cache 取           这一步是 KV Cache 真正发挥作用的地方
-
-后续 token 快，是因为 Decode 阶段有 KV Cache 且每步计算量极小。
 
 
 
@@ -661,7 +711,9 @@ KV Cache的核心逻辑是**空间换时间**，在decoder阶段，更准确地�
 
 **A：**
 
-因为模型是逐token生成的，服务端可以逐 token 推送但是也可以等生成完成后一次性返回。Streaming 是**工程层决策**，“蹦”是 UI 设计
+因为模型是逐token生成的，服务端可以逐 token 推送但是也可以等生成完成后一次性返回。Streaming 是**工程层决策**，服务端逐 token 推送依赖的是 SSE（Server-Sent Events）或 WebSocket 等流式传输协议
+
+
 
 
 
@@ -671,19 +723,11 @@ KV Cache的核心逻辑是**空间换时间**，在decoder阶段，更准确地�
 
 **A：**
 
-输入越长，意味着需要做的tokenization越多，token也就会越多，那么evaluate self-attention score的计算量就越多，且推理时复杂度是累加的。
+主要由以下两个阶段造成：
 
-生成第 1 个 token：看 n
-生成第 2 个 token：看 n+1
-生成第 3 个 token：看 n+2
+**Prefill 阶段**：输入长度为 N 时，Self-Attention 计算量为 O(N²)，N 越大，Prefill 越慢，TTFT 越长。
 
-整体是：
-
-```
-O(n² + n(n+1) + ...)
-```
-
-所以长输入不仅慢一次，而是整个生成过程都变慢。
+**Decode 阶段**：每步生成新 token 时，需要与缓存中所有 N 个历史 K 做点积，单步复杂度为 O(N)，输入越长，每一步 Decode 也越慢。
 
 
 
@@ -693,5 +737,6 @@ O(n² + n(n+1) + ...)
 
 **A：**
 
-在当代 LLM时代，GPT 系列使用的是 **Decoder-only** 架构。Decoder-only架构取消了连接encoder和decoder的cross attention层，原本由 Encoder 提供的“源文信息”被直接合并到了同一个输入序列中。所谓“Encoder 的数据”，现在就藏在序列的 Prompt（提示词） 部分，输入的 Prompt（原本属于 Encoder 的内容）和模型即将生成的回答（原本属于 Decoder 的内容）被拼接成了一个长序列，通过 Masked Self-Attention 进行传递。
+在当代 LLM时代，GPT 系列使用的是 **Decoder-only** 架构。Decoder-only 架构从设计上就不包含独立的 Encoder 模块，因此也不存在 Cross Attention 层；输入 prompt 和待生成序列被统一处理为同一个 token 序列，通过 Causal Masked Self-Attention 建模。即原本由 Encoder 提供的“源文信息”被直接合并到了同一个输入序列中。所谓“Encoder 的数据”，现在就在序列的 Prompt（提示词） 部分，输入的 Prompt（原本属于 Encoder 的内容）和模型即将生成的回答（原本属于 Decoder 的内容）被拼接成了一个长序列，prompt 部分可以互相 attend，生成部分只能 attend 到已生成的内容。
 
+Decoder-only 在训练目标、扩展性、和任务统一性三个维度上系统性地优于 Encoder-Decoder，因此成为了主流
