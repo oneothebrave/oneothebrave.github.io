@@ -1,0 +1,378 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+
+:root {
+  /* Fonts */
+  --vp-font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  --vp-font-family-mono: 'Fira Code', source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+
+  /* Theme color palette - Premium Ocean & Cyber Blue-Purple */
+  --vp-c-brand-1: #4f46e5; /* Indigo */
+  --vp-c-brand-2: #6366f1;
+  --vp-c-brand-3: #818cf8;
+  --vp-c-brand-soft: rgba(79, 70, 229, 0.08);
+
+  /* Gradient backgrounds */
+  --brand-gradient: linear-gradient(135deg, #2563eb 0%, #8b5cf6 50%, #d946ef 100%);
+  --brand-gradient-hover: linear-gradient(135deg, #1d4ed8 0%, #7c3aed 50%, #c084fc 100%);
+  
+  /* Hero customizations */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: var(--brand-gradient);
+  --vp-home-hero-image-background-image: var(--brand-gradient);
+  --vp-home-hero-image-filter: blur(60px);
+}
+
+.dark {
+  --vp-c-brand-1: #818cf8;
+  --vp-c-brand-2: #6366f1;
+  --vp-c-brand-3: #4f46e5;
+  --vp-c-brand-soft: rgba(129, 140, 248, 0.12);
+
+  --brand-gradient: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+  --brand-gradient-hover: linear-gradient(135deg, #93c5fd 0%, #c084fc 50%, #f472b6 100%);
+  
+  --vp-c-bg: #090d16;
+  --vp-c-bg-alt: #0f1524;
+  --vp-c-bg-elv: #161f33;
+  --vp-c-border: #1e293b;
+}
+
+/* Base custom styles */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* Home Hero Styling */
+.VPContent.is-home {
+  background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.05), transparent 40%),
+              radial-gradient(circle at bottom left, rgba(217, 70, 239, 0.03), transparent 40%);
+}
+
+.VPHero .name {
+  font-weight: 800 !important;
+  letter-spacing: -0.03em;
+}
+
+.VPHero .tagline {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: var(--vp-c-text-2);
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 960px) {
+  .VPHero .tagline {
+    font-size: 1.5rem;
+  }
+}
+
+/* Hero Button Upgrades */
+.VPButton.brand {
+  background: var(--brand-gradient) !important;
+  border-color: transparent !important;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.VPButton.brand:hover {
+  background: var(--brand-gradient-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+}
+
+.VPButton.alt {
+  border-color: var(--vp-c-border) !important;
+  background-color: var(--vp-c-bg-elv) !important;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.VPButton.alt:hover {
+  background-color: var(--vp-c-bg-alt) !important;
+  transform: translateY(-2px);
+  border-color: var(--vp-c-brand-1) !important;
+}
+
+/* Feature Card Upgrades */
+.VPFeatures {
+  padding: 48px 24px !important;
+}
+
+.VPFeature {
+  background-color: var(--vp-c-bg-elv) !important;
+  border: 1px solid var(--vp-c-border) !important;
+  border-radius: 16px !important;
+  padding: 32px !important;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle border glow effect on hover */
+.VPFeature::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--brand-gradient);
+  opacity: 0;
+  z-index: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.VPFeature:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  border-color: transparent !important;
+}
+
+.dark .VPFeature:hover {
+  box-shadow: 0 12px 30px rgba(99, 102, 241, 0.1);
+}
+
+.VPFeature:hover::before {
+  opacity: 0.08;
+}
+
+.VPFeature > * {
+  position: relative;
+  z-index: 1;
+}
+
+.VPFeature .icon {
+  background-color: var(--vp-c-brand-soft) !important;
+  border-radius: 12px !important;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  transition: transform 0.3s ease;
+}
+
+.VPFeature:hover .icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.VPFeature .title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin-bottom: 12px;
+  color: var(--vp-c-text-1);
+}
+
+.VPFeature .details {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--vp-c-text-2);
+}
+
+/* Sidebar and Navbar Tweaks */
+.VPSidebar {
+  font-size: 0.95rem;
+  border-right: 1px solid var(--vp-c-border) !important;
+  background-color: var(--vp-c-bg) !important;
+}
+
+.VPSidebarItem.level-0 > .item > .text {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--vp-c-text-1) !important;
+}
+
+/* Sidebar Item Animation and Rounded Active Link */
+.VPSidebarItem .link {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  padding: 6px 16px !important;
+  border-radius: 8px !important;
+  margin: 4px 0;
+  display: block;
+}
+
+.VPSidebarItem .link:hover {
+  transform: translateX(6px);
+  color: var(--vp-c-brand-1) !important;
+  background-color: var(--vp-c-brand-soft) !important;
+}
+
+.VPSidebarItem.active > .item > .link {
+  background-color: var(--vp-c-brand-soft) !important;
+  color: var(--vp-c-brand-1) !important;
+  font-weight: 600 !important;
+  position: relative;
+}
+
+/* Left gradient highlight bar for active menu */
+.VPSidebarItem.active > .item > .link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 15%;
+  height: 70%;
+  width: 4px;
+  background: var(--brand-gradient);
+  border-radius: 2px;
+}
+
+.VPNavBar {
+  backdrop-filter: blur(12px);
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  border-bottom: 1px solid var(--vp-c-border) !important;
+}
+
+.dark .VPNavBar {
+  background-color: rgba(9, 13, 22, 0.8) !important;
+}
+
+/* Article Page Layout & Typography (vp-doc) */
+.vp-doc {
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+.vp-doc h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  letter-spacing: -0.03em;
+}
+
+.vp-doc h2 {
+  font-size: 1.65rem;
+  font-weight: 700;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--vp-c-border) !important;
+  margin-top: 48px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+/* Subtle left color accent bar for H2s */
+.vp-doc h2::before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 22%;
+  height: 56%;
+  width: 4px;
+  background: var(--brand-gradient);
+  border-radius: 2px;
+}
+
+/* Hide line indicator on small screens to avoid overflow */
+@media (max-width: 960px) {
+  .vp-doc h2::before {
+    display: none;
+  }
+}
+
+.vp-doc h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-top: 36px;
+  margin-bottom: 16px;
+}
+
+/* Premium Blockquotes with Gradient Border */
+.vp-doc blockquote {
+  margin: 32px 0;
+  padding: 18px 24px;
+  background-color: var(--vp-c-bg-alt) !important;
+  border-left: none !important;
+  border-radius: 0 12px 12px 0;
+  position: relative;
+  font-style: italic;
+  color: var(--vp-c-text-2);
+}
+
+.vp-doc blockquote::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background: var(--brand-gradient);
+  border-radius: 4px 0 0 4px;
+}
+
+.vp-doc blockquote p {
+  margin: 0 !important;
+  line-height: 1.7;
+}
+
+/* Inline Code Elements */
+.vp-doc :not(pre) > code {
+  font-size: 0.88em;
+  padding: 3px 8px !important;
+  background-color: var(--vp-c-brand-soft) !important;
+  color: var(--vp-c-brand-1) !important;
+  border-radius: 6px !important;
+  border: 1px solid rgba(99, 102, 241, 0.15) !important;
+  font-family: var(--vp-font-family-mono);
+}
+
+.dark .vp-doc :not(pre) > code {
+  border: 1px solid rgba(129, 140, 248, 0.2) !important;
+}
+
+/* Upgrade Code Blocks Wrapper */
+.vp-doc div[class*="language-"] {
+  border-radius: 12px !important;
+  border: 1px solid var(--vp-c-border) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  margin: 24px 0 !important;
+}
+
+.dark .vp-doc div[class*="language-"] {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Link Animations in Articles */
+.vp-doc a:not(.VPButton) {
+  color: var(--vp-c-brand-1) !important;
+  font-weight: 600;
+  text-decoration: none !important;
+  position: relative;
+  transition: color 0.25s ease;
+  display: inline-block;
+}
+
+.vp-doc a:not(.VPButton):hover {
+  color: var(--vp-c-brand-2) !important;
+}
+
+.vp-doc a:not(.VPButton)::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: 0px;
+  left: 0;
+  background: var(--brand-gradient);
+  transform-origin: bottom right;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vp-doc a:not(.VPButton):hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+

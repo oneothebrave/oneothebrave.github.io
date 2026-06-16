@@ -1,1 +1,0 @@
-import{_ as e,o as t,c as a}from"./chunks/framework.EHGTsUvI.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"React/Fiber.md","filePath":"React/Fiber.md"}'),r={name:"React/Fiber.md"};function c(o,s,n,i,p,_){return t(),a("div")}const f=e(r,[["render",c]]);export{m as __pageData,f as default};

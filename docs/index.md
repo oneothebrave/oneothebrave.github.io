@@ -1,43 +1,162 @@
 ---
-title: 'Home'
+layout: home
+sidebar: false
+
+hero:
+  name: Oneo's Blog
+  text: "Tech, Code & AI"
+  tagline: "Exploring JavaScript, React Fiber, TypeScript, and AI logic."
+  actions:
+    - theme: brand
+      text: 开始阅读
+      link: /vitepress-blog-setup
+    - theme: alt
+      text: GitHub 仓库
+      link: https://github.com/oneothebrave/oneothebrave.github.io
 ---
 
-# 目录
-<!-- 
-- ### 《 JavaScript高级程序设计 》笔记系列
+<div class="custom-home-container">
 
+  <!-- Category: AI -->
+  <div class="category-row">
+    <h2 class="category-title">🤖 AI 领域</h2>
+    <div class="cards-grid">
+      <a href="/AI/transformer" class="custom-card VPFeature">
+        <div class="icon">🤖</div>
+        <h3 class="title">AI | Transformer 底层逻辑</h3>
+        <p class="details">深入探讨 Transformer 从 Token 到生成的运行机制与核心逻辑。</p>
+      </a>
+    </div>
+  </div>
 
-> 这系列是[《JavaScript高级程序设计》第四版](https://www.ituring.com.cn/book/2472)的学习笔记，记录了一些我觉得要记录的东西，不会非常详细，也不会非常简略
->
+  <!-- Category: React -->
+  <div class="category-row">
+    <h2 class="category-title">⚛️ React 核心</h2>
+    <div class="cards-grid">
+      <a href="/React/Fiber" class="custom-card VPFeature">
+        <div class="icon">⚛️</div>
+        <h3 class="title">React | Fiber 架构</h3>
+        <p class="details">深度剖析 React Fiber 架构的双缓存树、协调器与调度器工作原理。</p>
+      </a>
+      <a href="/React/note" class="custom-card VPFeature">
+        <div class="icon">📝</div>
+        <h3 class="title">React | 核心学习笔记</h3>
+        <p class="details">梳理 React Hooks、并发模式及日常开发精要与核心概念。</p>
+      </a>
+      <a href="/React/questions" class="custom-card VPFeature">
+        <div class="icon">🙋</div>
+        <h3 class="title">React | 核心面试问答</h3>
+        <p class="details">精心整理的 React 核心面试题，包含状态更新与 Fiber 调度的常见问答。</p>
+      </a>
+    </div>
+  </div>
 
-1. [[第1章] 什么是JavaScript](/JsNote/1)
+  <!-- Category: JS & TS -->
+  <div class="category-row">
+    <h2 class="category-title">📘 JS & TS 教程</h2>
+    <div class="cards-grid">
+      <a href="/TypeScript" class="custom-card VPFeature">
+        <div class="icon">📘</div>
+        <h3 class="title">TypeScript | 核心教程</h3>
+        <p class="details">系统化归纳 TypeScript 类型系统，包括泛型、逆变协变及高级技巧。</p>
+      </a>
+      <a href="/export-import" class="custom-card VPFeature">
+        <div class="icon">📦</div>
+        <h3 class="title">JS | 模块导入导出总结</h3>
+        <p class="details">理清 exports/module.exports 与 export/import 的区别及加载逻辑。</p>
+      </a>
+    </div>
+  </div>
 
-2. [[第2章] HTML中的JavaScript](/JsNote/2)
-3. [[第3章] 语言基础](/JsNote/3) -->
+  <!-- Category: Translations -->
+  <div class="category-row">
+    <h2 class="category-title">🌐 译文专区</h2>
+    <div class="cards-grid">
+      <a href="/translation/devto-jseventloop" class="custom-card VPFeature">
+        <div class="icon">🔄</div>
+        <h3 class="title">译 | JS 事件循环机制</h3>
+        <p class="details">一文读懂 JavaScript 执行栈、宏任务与微任务的队列轮询机制。</p>
+      </a>
+      <a href="/translation/devto-promises-async-await" class="custom-card VPFeature">
+        <div class="icon">⏳</div>
+        <h3 class="title">译 | Promises & Async/Await</h3>
+        <p class="details">通俗易懂的 JavaScript 异步操作，从 Callback 到 Promise 的演进。</p>
+      </a>
+    </div>
+  </div>
 
+  <!-- Category: Blog Setup -->
+  <div class="category-row">
+    <h2 class="category-title">🛠️ 博客搭建</h2>
+    <div class="cards-grid">
+      <a href="/vitepress-blog-setup" class="custom-card VPFeature">
+        <div class="icon">🛠️</div>
+        <h3 class="title">VitePress | 博客搭建指南</h3>
+        <p class="details">详细记录如何配置 VitePress 目录结构、主题、侧边栏及本地调试流程。</p>
+      </a>
+      <a href="/vitepress-blog-depoly" class="custom-card VPFeature">
+        <div class="icon">🚀</div>
+        <h3 class="title">VitePress | 自动部署指南</h3>
+        <p class="details">手把手教您如何使用 GitHub Actions 自动构建并部署博客至 GitHub Pages。</p>
+      </a>
+    </div>
+  </div>
 
-- ### 翻译而来
+</div>
 
-> 翻译一些觉得不错的文章
+<style>
+.custom-home-container {
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
 
-- [JS事件循环](/translation/devto-jseventloop.md)
+.category-row {
+  margin-bottom: 56px;
+}
 
-- [JS中的Promises和async/await](/translation/devto-promises-async-await)
+.category-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 28px;
+  color: var(--vp-c-text-1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  letter-spacing: -0.02em;
+}
 
+.category-title::after {
+  content: '';
+  flex-grow: 1;
+  height: 1px;
+  background-color: var(--vp-c-border);
+  margin-left: 16px;
+}
 
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 24px;
+}
 
+@media (min-width: 640px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 
+@media (min-width: 960px) {
+  .cards-grid {
+    grid-template-columns: repeat(4, 1fr); /* 每一行最多放 4 个卡片 */
+  }
+}
 
-- ### 自己写的
-
-> 叉腰
-- [AI | Transformer底层逻辑：从token到生成](/AI/transformer.md)
-- [VitePress搭建博客并部署到GitHub Pages](/vitepress-blog-setup.md)
-
-- [exports与module.exports,export与export default,import与require](/export-import.md)
-
-- [TypeScript教程](/TypeScript.md)
-- [React | Fiber](/React/Fiber)
-- [React | 笔记](/React/note)
-- [React | 问答](/React/questions)
-
+.custom-card {
+  text-decoration: none !important;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+</style>

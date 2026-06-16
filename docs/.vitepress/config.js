@@ -38,11 +38,11 @@ module.exports = {
         sidebar: [
             // { 
             //     text: "JS笔记", 
-            //     children: JSNOTE_CHAPTERS
+            //     items: JSNOTE_CHAPTERS
             // },
             { 
                 text: "VitePress搭建博客并部署到GitHub Pages", 
-                children: [
+                items: [
                     {
                         text: "搭建",
                         link: "/vitepress-blog-setup"
@@ -55,7 +55,7 @@ module.exports = {
             },
             {
                 text: "AI",
-                children: [
+                items: [
                     {
                         text: "Transformer",
                         link: "/AI/transformer"
@@ -65,7 +65,7 @@ module.exports = {
             },
             { 
                 text: "React", 
-                children: [
+                items: [
                     {
                         text: "Fiber架构",
                         link: "/React/Fiber"
@@ -82,7 +82,7 @@ module.exports = {
             },
             {
                 text: "export and import",
-                children: [
+                items: [
                     {
                         text: "总结",
                         link: "/export-import"
@@ -92,7 +92,7 @@ module.exports = {
             },
             {
                 text: "TypeScript教程",
-                children: [
+                items: [
                     {
                         text: "总结",
                         link: "/TypeScript"
@@ -102,11 +102,11 @@ module.exports = {
             },
             {
                 text: "翻译而来",
-                children: TRANSLATION
+                items: TRANSLATION
             },
             // {
             //     text: "We live in a society",
-            //     children: [
+            //     items: [
             //         {
             //             text: "三胖",
             //             link: "/society--Kim-Jong-un"
