@@ -27,12 +27,52 @@ const TRANSLATION = [
 module.exports = {
     base: '/',
     title: 'Oneo\'s Blog',
-    description: 'oneothebrave\'s Tech Blog',
-    lang: 'en-US',
+    description: 'Oneo 的技术手记，记录前端开发、JavaScript、React 与 AI 原理。保持好奇，把原理想明白。',
+    lang: 'zh-CN',
+    appearance: true,
+    head: [
+        ['link', { rel: 'icon', type: 'image/svg+xml', href: '/mark.svg' }],
+        ['meta', { name: 'theme-color', content: '#faf9f5' }]
+    ],
+    markdown: { theme: { light: 'github-dark', dark: 'github-dark' } },
     themeConfig: {
+        logo: { src: '/mark.svg', alt: '' },
+        outline: { label: '本篇目录', level: [2, 3] },
+        docFooter: { prev: '上一篇', next: '下一篇' },
+        sidebarMenuLabel: '文章目录',
+        returnToTopLabel: '回到顶部',
+        darkModeSwitchLabel: '切换深色模式',
+        darkModeSwitchTitle: '切换为深色模式',
+        lightModeSwitchTitle: '切换为浅色模式',
+        notFound: {
+            title: '这页笔记还没写下',
+            quote: '换个方向，继续探索值得想明白的事。',
+            linkLabel: '回到首页',
+            linkText: '回到首页'
+        },
+        search: {
+            provider: 'local',
+            options: {
+                locales: {
+                    root: {
+                        translations: {
+                            button: { buttonText: '搜索笔记', buttonAriaLabel: '搜索笔记' },
+                            modal: {
+                                displayDetails: '显示详情',
+                                resetButtonTitle: '清除搜索',
+                                backButtonTitle: '关闭搜索',
+                                noResultsText: '没有找到相关笔记',
+                                footer: { selectText: '选择', navigateText: '切换', closeText: '关闭' }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         // lastUpdated: 'Last Update',
         nav: [
-            { text: 'Home', link: '/' },
+            { text: '首页', link: '/' },
+            { text: '所有文章', link: '/#articles' },
             { text: 'GitHub', link: 'https://github.com/oneothebrave/oneothebrave.github.io' },
         ],
         sidebar: [
