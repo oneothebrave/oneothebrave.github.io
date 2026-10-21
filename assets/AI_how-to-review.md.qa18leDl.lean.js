@@ -1,0 +1,1 @@
+import{_ as e,o as t,c as o}from"./chunks/framework.BFZItJIV.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"AI/how-to-review.md","filePath":"AI/how-to-review.md"}'),r={name:"AI/how-to-review.md"};function a(s,c,n,i,p,_){return t(),o("div")}const f=e(r,[["render",a]]);export{m as __pageData,f as default};
