@@ -12,6 +12,7 @@ const categories = [
 ]
 
 const articles = [
+  { category: 'ai', label: 'AI · 工程实践', title: 'AI Agent 时代的软件质量保障体系', description: '从 Code Review 的价值出发，理解 AI 审查、分层验证与风险控制如何共同保障软件质量。', link: '/AI/how-to-review', symbol: '✳', topic: 'Agent engineering' },
   { category: 'ai', label: 'AI · 深入原理', title: 'Transformer 底层逻辑', description: '从 Token、Self-Attention 到文本生成，一步步理解 Transformer 的运行机制。', link: '/AI/transformer', symbol: '✳', topic: 'Transformer' },
   { category: 'react', label: 'REACT · 架构', title: '重新理解 React Fiber', description: '串起 Fiber 节点、双缓存树、协调器与调度器，读懂一次更新的来龙去脉。', link: '/React/Fiber', symbol: '↗', topic: 'React internals' },
   { category: 'language', label: 'TYPESCRIPT · 类型系统', title: 'TypeScript 核心教程', description: '从基础类型到泛型与类型兼容，让类型系统成为思考代码的另一种方式。', link: '/TypeScript', symbol: 'T', topic: 'Type system' },
